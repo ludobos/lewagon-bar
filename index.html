@@ -93,14 +93,38 @@
           "closes": "16:00"
         }
       ],
+      "hasMenu": {
+        "@type": "Menu",
+        "hasMenuSection": [
+          {
+            "@type": "MenuSection",
+            "name": "Cafés & Boissons Chaudes",
+            "description": "Espresso, cappuccino, thé et chocolat chaud"
+          },
+          {
+            "@type": "MenuSection",
+            "name": "Boissons",
+            "description": "Bières artisanales, vins, cocktails et softs"
+          },
+          {
+            "@type": "MenuSection",
+            "name": "Gourmandises",
+            "description": "Pâtisseries maison, planches et encas"
+          }
+        ]
+      },
       "sameAs": [
         "https://www.facebook.com/profile.php?id=61587126582087",
         "https://www.instagram.com/bar.lewagon/"
       ],
       "priceRange": "€",
-      "servesCuisine": "Café, Snacks",
-      "hasMenu": false,
-      "acceptsReservations": false
+      "servesCuisine": "Café, Snacks, Bar",
+      "acceptsReservations": false,
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "reviewCount": "12"
+      }
     }
     </script>
 
@@ -139,7 +163,7 @@
           "name": "Que peut-on manger et boire au Wagon ?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Le Wagon propose des cafés, boissons et petites gourmandises à grignoter dans une ambiance conviviale."
+            "text": "Le Wagon propose des cafés, boissons chaudes, bières artisanales, vins, cocktails et petites gourmandises à grignoter dans une ambiance conviviale."
           }
         }
       ]
@@ -148,12 +172,17 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
+        /* ===== RESET & BASE ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -161,180 +190,684 @@
             background-color: #1a1a1a;
             color: #fff;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            overflow-x: hidden;
         }
 
-        .header-image {
-            width: 100%;
-            max-height: 350px;
-            object-fit: cover;
-            object-position: center center;
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --red: #c93545;
+            --red-dark: #a02535;
+            --gold: #d4a574;
+            --gold-light: #e8c9a0;
+            --bg-dark: #1a1a1a;
+            --bg-card: #252525;
+            --bg-card-alt: #2a2a2a;
+            --text-primary: #fff;
+            --text-secondary: #d4d4d4;
+            --text-muted: #a0a0a0;
+            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-body: 'Montserrat', sans-serif;
+            --container-width: 960px;
+            --section-spacing: 80px;
+            --transition: 0.3s ease;
         }
 
-        .container {
-            max-width: 800px;
-            padding: 40px 20px;
-            text-align: center;
-        }
-
-        .logo {
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            margin: -80px auto 30px;
-            position: relative;
-            z-index: 10;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #c93545;
-        }
-
-        .tagline {
-            font-size: 1.2rem;
-            color: #d4d4d4;
-            margin-bottom: 40px;
-        }
-
-        .launch-section {
-            background: linear-gradient(135deg, #c93545 0%, #a02535 100%);
-            padding: 40px;
-            border-radius: 15px;
-            margin-bottom: 40px;
-        }
-
-        .launch-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-
-        .open-section {
-            text-align: center;
-        }
-
-        .open-message {
-            font-size: 1.1rem;
-            margin: 15px 0;
-            opacity: 0.95;
-        }
-
-        .horaires {
-            background: rgba(255,255,255,0.1);
-            padding: 15px 25px;
-            border-radius: 8px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .horaires p {
-            margin: 5px 0;
-            font-size: 1rem;
-        }
-
-        .horaires .ferme {
-            opacity: 0.7;
-            font-style: italic;
-        }
-
-        .francois-section {
-            background: #252525;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 40px;
-        }
-
-        .francois-photo {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            object-fit: cover;
-            object-position: center 15%;
-            transform: scale(1);
-            margin-bottom: 20px;
-            border: 4px solid #c93545;
-            box-shadow: 0 4px 15px rgba(201, 53, 69, 0.3);
-        }
-
-        .francois-section h2 {
-            color: #c93545;
-            margin-bottom: 15px;
-        }
-
-        .francois-section p {
-            color: #d4d4d4;
-            margin-bottom: 20px;
-        }
-
-        .francois-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
+        /* ===== ACCESSIBILITY ===== */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--red);
             color: #fff;
+            padding: 8px 16px;
+            z-index: 1000;
             text-decoration: none;
-            background: #1877f2;
-            padding: 12px 25px;
-            border-radius: 8px;
-            transition: background 0.3s;
-        }
-
-        .francois-link:hover {
-            background: #166fe5;
-        }
-
-        .ambiance-section {
-            margin-bottom: 40px;
-        }
-
-        .ambiance-photo {
-            width: 100%;
-            max-width: 350px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .ambiance-section p {
-            color: #d4d4d4;
-            font-size: 1.1rem;
-            font-style: italic;
-        }
-
-        .faq-section {
-            background: #252525;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 40px;
-            text-align: left;
-        }
-
-        .faq-section h2 {
-            color: #c93545;
-            margin-bottom: 25px;
-            text-align: center;
-            font-size: 1.3rem;
-        }
-
-        .faq-section dl {
-            margin: 0;
-        }
-
-        .faq-section dt {
             font-weight: 600;
         }
 
-        .faq-section dd {
-            margin-left: 0;
+        .skip-link:focus {
+            top: 0;
+        }
+
+        a:focus-visible,
+        button:focus-visible {
+            outline: 3px solid var(--gold);
+            outline-offset: 2px;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* ===== SCROLL ANIMATIONS ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== STICKY NAVIGATION ===== */
+        .nav-sticky {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+            transform: translateY(-100%);
+            transition: transform 0.4s ease;
+            padding: 0 20px;
+        }
+
+        .nav-sticky.show {
+            transform: translateY(0);
+        }
+
+        .nav-inner {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+        }
+
+        .nav-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: color var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        .nav-hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .nav-hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text-primary);
+            margin: 5px 0;
+            transition: var(--transition);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            min-height: 500px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/623378642_25696026346673621_6573485341025399040_n.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(26, 26, 26, 0.3) 0%,
+                rgba(26, 26, 26, 0.6) 60%,
+                rgba(26, 26, 26, 1) 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .hero-logo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+            border: 3px solid rgba(212, 165, 116, 0.4);
+        }
+
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero .tagline {
+            font-size: 1.3rem;
+            color: var(--gold-light);
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            padding: 14px 36px;
+            background: var(--red);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            transition: background var(--transition), transform var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .hero-cta:hover {
+            background: transparent;
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            animation: bounceDown 2s infinite;
+        }
+
+        .hero-scroll svg {
+            width: 30px;
+            height: 30px;
+            fill: var(--gold);
+            opacity: 0.6;
+        }
+
+        @keyframes bounceDown {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ===== SECTION SEPARATOR ===== */
+        .section-separator {
+            width: 60px;
+            height: 2px;
+            background: var(--gold);
+            margin: 0 auto 25px;
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+
+        /* ===== HORAIRES SECTION ===== */
+        .horaires-section {
+            padding: var(--section-spacing) 0;
+        }
+
+        .horaires-card {
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            border-radius: 20px;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .horaires-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+        }
+
+        .horaires-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            letter-spacing: 0.5px;
+        }
+
+        .horaires-status.open {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .horaires-status.closed {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .horaires-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .horaires-status.open .horaires-status-dot {
+            background: #4ade80;
+        }
+
+        .horaires-status.closed .horaires-status-dot {
+            background: rgba(255, 255, 255, 0.6);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .horaires-icon {
+            width: 40px;
+            height: 40px;
+            fill: var(--gold-light);
+            margin-bottom: 15px;
+        }
+
+        .horaires-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            max-width: 400px;
+            margin: 20px auto 0;
+            text-align: left;
+        }
+
+        .horaires-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .horaires-row.today {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+
+        .horaires-row .day {
+            font-weight: 500;
+        }
+
+        .horaires-row .hours {
+            opacity: 0.9;
+        }
+
+        .horaires-row.closed-day {
+            opacity: 0.5;
+        }
+
+        .horaires-address {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .horaires-address a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color var(--transition);
+        }
+
+        .horaires-address a:hover {
+            color: var(--gold-light);
+        }
+
+        .horaires-address svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        /* ===== LA CARTE SECTION ===== */
+        .carte-section {
+            padding: var(--section-spacing) 0;
+        }
+
+        .carte-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-top: 20px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .carte-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 35px 25px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform var(--transition), border-color var(--transition);
+        }
+
+        .carte-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(212, 165, 116, 0.3);
+        }
+
+        .carte-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 20px;
+            fill: var(--gold);
+        }
+
+        .carte-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .carte-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        .carte-items {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .carte-items li {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .carte-items li:last-child {
+            border-bottom: none;
+        }
+
+        /* ===== FRANCOIS SECTION ===== */
+        .francois-section {
+            padding: var(--section-spacing) 0;
+        }
+
+        .francois-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 50px;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .francois-photo-wrapper {
+            text-align: center;
+        }
+
+        .francois-photo {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: center 15%;
+            border: 4px solid var(--gold);
+            box-shadow: 0 4px 25px rgba(212, 165, 116, 0.2);
+        }
+
+        .francois-text h2 {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .francois-quote {
+            font-family: var(--font-heading);
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--gold-light);
+            margin-bottom: 20px;
+            padding-left: 20px;
+            border-left: 3px solid var(--gold);
+            line-height: 1.6;
+        }
+
+        .francois-quote::before {
+            content: '\201C';
+            font-size: 3rem;
+            color: var(--gold);
+            line-height: 0;
+            vertical-align: -0.5em;
+            margin-right: 5px;
+        }
+
+        .francois-desc {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        /* ===== GALERIE SECTION ===== */
+        .galerie-section {
+            padding: var(--section-spacing) 0;
+        }
+
+        .galerie-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-rows: 200px 200px;
+            gap: 15px;
+        }
+
+        .galerie-item {
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .galerie-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .galerie-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .galerie-item:first-child {
+            grid-row: 1 / 3;
+        }
+
+        .galerie-placeholder {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            gap: 8px;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .galerie-placeholder svg {
+            width: 30px;
+            height: 30px;
+            fill: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* ===== AVIS SECTION ===== */
+        .avis-section {
+            padding: var(--section-spacing) 0;
+        }
+
+        .avis-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .avis-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .avis-stars {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 15px;
+        }
+
+        .avis-stars svg {
+            width: 18px;
+            height: 18px;
+            fill: #facc15;
+        }
+
+        .avis-text {
+            font-style: italic;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .avis-author {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .avis-cta {
+            text-align: center;
+            margin-top: 35px;
+        }
+
+        .avis-cta a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color var(--transition);
+        }
+
+        .avis-cta a:hover {
+            color: var(--gold-light);
+        }
+
+        /* ===== FAQ SECTION ===== */
+        .faq-section {
+            padding: var(--section-spacing) 0;
+        }
+
+        .faq-list {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 40px;
         }
 
         .faq-item {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #333;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .faq-item:last-child {
@@ -344,24 +877,83 @@
         }
 
         .faq-question {
-            color: #fff;
             font-weight: 600;
             margin-bottom: 8px;
+            color: var(--text-primary);
         }
 
         .faq-answer {
-            color: #d4d4d4;
-            line-height: 1.6;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 0.95rem;
         }
 
-        .social-section {
-            margin-bottom: 40px;
+        /* ===== MAP SECTION ===== */
+        .map-section {
+            padding: var(--section-spacing) 0;
         }
 
-        .social-section h2 {
-            color: #c93545;
+        .map-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .map-iframe-wrapper {
+            border-radius: 16px;
+            overflow: hidden;
+            height: 400px;
+        }
+
+        .map-iframe-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .map-info {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 35px;
+        }
+
+        .map-info h3 {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
             margin-bottom: 20px;
-            font-size: 1.3rem;
+        }
+
+        .map-info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .map-info-item svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--gold);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .map-info-item a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .map-info-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== SOCIAL SECTION ===== */
+        .social-section {
+            padding: var(--section-spacing) 0;
         }
 
         .social-links {
@@ -377,9 +969,10 @@
             gap: 10px;
             color: #fff;
             text-decoration: none;
-            padding: 15px 25px;
-            border-radius: 8px;
-            transition: transform 0.3s, opacity 0.3s;
+            padding: 15px 30px;
+            border-radius: 50px;
+            transition: transform var(--transition), opacity var(--transition);
+            font-weight: 500;
         }
 
         .social-link:hover {
@@ -387,204 +980,735 @@
             opacity: 0.9;
         }
 
-        .social-link.facebook {
-            background: #1877f2;
-        }
-
-        .social-link.instagram {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        }
-
-        .social-link.google {
-            background: #4285f4;
-        }
+        .social-link.facebook { background: #1877f2; }
+        .social-link.instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .social-link.google { background: #4285f4; }
 
         .social-icon {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             fill: currentColor;
         }
 
-        footer {
-            margin-top: auto;
-            padding: 20px;
-            text-align: center;
-            color: #a0a0a0;
-            font-size: 0.9rem;
+        /* ===== FOOTER ===== */
+        .footer {
+            background: #111;
+            margin-top: var(--section-spacing);
+            padding: 60px 20px 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        footer p {
-            margin: 5px 0;
+        .footer-grid {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
         }
 
-        footer address {
+        .footer-col h4 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--gold);
+        }
+
+        .footer-col p,
+        .footer-col address {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.8;
             font-style: normal;
-            margin: 5px 0;
         }
 
-        /* Accessibilité - Focus visible */
-        a:focus,
-        button:focus {
-            outline: 3px solid #c93545;
-            outline-offset: 2px;
-        }
-
-        /* Skip link pour navigation clavier */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: #c93545;
-            color: #fff;
-            padding: 8px 16px;
-            z-index: 100;
+        .footer-col a {
+            color: var(--text-muted);
             text-decoration: none;
-            font-weight: 600;
+            transition: color var(--transition);
         }
 
-        .skip-link:focus {
-            top: 0;
+        .footer-col a:hover {
+            color: var(--gold);
         }
 
-        /* Amélioration contraste texte */
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
+        .footer-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .footer-social-icons {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .footer-social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition);
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .footer-social-icon:hover {
+            background: var(--gold);
+            color: var(--bg-dark);
+        }
+
+        .footer-social-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .footer-bottom {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .footer-bottom a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .footer-bottom a:hover {
+            color: var(--gold);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            :root {
+                --section-spacing: 60px;
+            }
+
+            .carte-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .francois-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 35px 25px;
+                gap: 30px;
+            }
+
+            .francois-quote {
+                border-left: none;
+                padding-left: 0;
+                text-align: center;
+            }
+
+            .avis-grid {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+                margin: 0 auto;
+            }
+
+            .galerie-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 200px 200px;
+            }
+
+            .galerie-item:first-child {
+                grid-row: auto;
+                grid-column: 1 / 3;
+            }
+
+            .map-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .hero h1 { font-size: 2.5rem; }
         }
 
         @media (max-width: 600px) {
-            .logo {
-                width: 180px;
-                height: 180px;
-                margin-top: -60px;
+            :root {
+                --section-spacing: 50px;
             }
 
-            h1 {
-                font-size: 1.8rem;
-            }
+            .nav-links { display: none; }
+            .nav-hamburger { display: block; }
 
-            .francois-photo {
-                width: 150px;
-                height: 150px;
-            }
-
-            .social-links {
+            .nav-links.open {
+                display: flex;
                 flex-direction: column;
-                align-items: center;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: rgba(26, 26, 26, 0.98);
+                padding: 20px;
+                gap: 15px;
+                border-bottom: 1px solid rgba(212, 165, 116, 0.2);
             }
 
-            .social-link {
-                width: 100%;
-                max-width: 280px;
-                justify-content: center;
+            .nav-links.open a {
+                display: block;
+                padding: 10px 0;
             }
+
+            .hero {
+                height: 70vh;
+                min-height: 400px;
+            }
+
+            .hero-bg {
+                background-attachment: scroll;
+            }
+
+            .hero h1 { font-size: 2rem; }
+            .hero .tagline { font-size: 1rem; }
+            .hero-logo { width: 140px; height: 140px; }
+
+            .section-title { font-size: 1.6rem; }
+
+            .francois-photo { width: 160px; height: 160px; }
+
+            .galerie-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 180px);
+            }
+
+            .galerie-item:first-child {
+                grid-column: auto;
+            }
+
+            .map-iframe-wrapper { height: 280px; }
+
+            .social-links { flex-direction: column; align-items: center; }
+            .social-link { width: 100%; max-width: 280px; justify-content: center; }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .horaires-card { padding: 30px 20px; }
         }
     </style>
 </head>
 <body>
     <a href="#contenu-principal" class="skip-link">Aller au contenu principal</a>
 
-    <header>
-        <img src="images/623378642_25696026346673621_6573485341025399040_n.jpg" alt="Façade du bar Le Wagon au 22 quai de la Fosse à Nantes" class="header-image">
+    <!-- Sticky Navigation -->
+    <nav class="nav-sticky" aria-label="Navigation principale">
+        <div class="nav-inner">
+            <img src="images/Le-Wagon_Logo-2.jpg" alt="Le Wagon" class="nav-logo">
+            <ul class="nav-links" role="menubar">
+                <li role="none"><a href="#horaires" role="menuitem">Horaires</a></li>
+                <li role="none"><a href="#la-carte" role="menuitem">La Carte</a></li>
+                <li role="none"><a href="#votre-hote" role="menuitem">Votre hôte</a></li>
+                <li role="none"><a href="#avis" role="menuitem">Avis</a></li>
+                <li role="none"><a href="#nous-trouver" role="menuitem">Nous trouver</a></li>
+            </ul>
+            <button class="nav-hamburger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-bg" role="img" aria-label="Façade du bar Le Wagon au 22 quai de la Fosse à Nantes"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <img src="images/Le-Wagon_Logo-2.jpg" alt="Logo Le Wagon - Bar à Papote et à Grignote" class="hero-logo">
+            <h1>Le Wagon</h1>
+            <p class="tagline">Bar à Papote et à Grignote</p>
+            <a href="#horaires" class="hero-cta">Découvrir</a>
+        </div>
+        <div class="hero-scroll" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+        </div>
     </header>
 
-    <main id="contenu-principal" class="container">
-        <img src="images/Le-Wagon_Logo-2.jpg" alt="Logo Le Wagon - Bar à Papote et à Grignote" class="logo">
+    <main id="contenu-principal">
 
-        <h1>Le Wagon</h1>
-        <p class="tagline">Bar à Papote et à Grignote</p>
+        <!-- Horaires Section -->
+        <section id="horaires" class="horaires-section" aria-labelledby="horaires-titre">
+            <div class="container fade-in">
+                <div class="section-separator"></div>
+                <h2 id="horaires-titre" class="section-title">Nos Horaires</h2>
+                <div class="horaires-card">
+                    <div id="status-indicator" class="horaires-status closed" role="status" aria-live="polite">
+                        <span class="horaires-status-dot"></span>
+                        <span id="status-text">Fermé actuellement</span>
+                    </div>
 
-        <section class="launch-section open-section" aria-labelledby="ouverture-titre">
-            <h2 id="ouverture-titre" class="launch-title">Nous sommes ouverts !</h2>
-            <p class="open-message">Venez nous retrouver dès maintenant au <strong>22 quai de la Fosse</strong></p>
-            <div class="horaires" role="region" aria-label="Horaires d'ouverture">
-                <p><span class="visually-hidden">Horaires : </span>Mardi - Mercredi : 8h - 18h</p>
-                <p>Jeudi - Vendredi : 8h - 00h</p>
-                <p>Samedi : 8h45 - 16h</p>
-                <p class="ferme">Dimanche & Lundi : Fermé</p>
+                    <svg class="horaires-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+
+                    <div class="horaires-grid" role="table" aria-label="Horaires d'ouverture">
+                        <div class="horaires-row" role="row" data-day="1">
+                            <span class="day" role="cell">Lundi</span>
+                            <span class="hours" role="cell">Fermé</span>
+                        </div>
+                        <div class="horaires-row" role="row" data-day="2">
+                            <span class="day" role="cell">Mardi</span>
+                            <span class="hours" role="cell">8h - 18h</span>
+                        </div>
+                        <div class="horaires-row" role="row" data-day="3">
+                            <span class="day" role="cell">Mercredi</span>
+                            <span class="hours" role="cell">8h - 18h</span>
+                        </div>
+                        <div class="horaires-row" role="row" data-day="4">
+                            <span class="day" role="cell">Jeudi</span>
+                            <span class="hours" role="cell">8h - 00h</span>
+                        </div>
+                        <div class="horaires-row" role="row" data-day="5">
+                            <span class="day" role="cell">Vendredi</span>
+                            <span class="hours" role="cell">8h - 00h</span>
+                        </div>
+                        <div class="horaires-row" role="row" data-day="6">
+                            <span class="day" role="cell">Samedi</span>
+                            <span class="hours" role="cell">8h45 - 16h</span>
+                        </div>
+                        <div class="horaires-row closed-day" role="row" data-day="0">
+                            <span class="day" role="cell">Dimanche</span>
+                            <span class="hours" role="cell">Fermé</span>
+                        </div>
+                    </div>
+
+                    <div class="horaires-address">
+                        <a href="https://maps.app.goo.gl/eS6dcKn4ZA5TB7jP8" target="_blank" rel="noopener noreferrer" aria-label="22 quai de la Fosse, 44000 Nantes - ouvrir dans Google Maps (nouvel onglet)">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            22 quai de la Fosse, 44000 Nantes
+                        </a>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section class="francois-section" aria-labelledby="hote-titre">
-            <img src="images/patron.jpg" alt="François, propriétaire du bar Le Wagon, souriant derrière le comptoir" class="francois-photo">
-            <h2 id="hote-titre">Votre hôte</h2>
-            <p>François vous accueille avec le sourire dans son tout nouveau bar !</p>
-            <a href="https://www.facebook.com/francois.rocu?utm_source=lewagon_landing&utm_medium=social&utm_campaign=lancement_2026&utm_content=francois" target="_blank" rel="noopener noreferrer" class="francois-link" aria-label="Découvrir François sur Facebook (ouvre dans un nouvel onglet)">
-                <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-                Découvrir François
-                <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
-            </a>
+        <!-- La Carte Section -->
+        <section id="la-carte" class="carte-section" aria-labelledby="carte-titre">
+            <div class="container fade-in">
+                <div class="section-separator"></div>
+                <h2 id="carte-titre" class="section-title">La Carte</h2>
+                <p class="section-subtitle">De quoi papoter et grignoter</p>
+
+                <div class="carte-grid">
+                    <!-- Cafés & Boissons Chaudes -->
+                    <div class="carte-card">
+                        <svg class="carte-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21h18v-2H2v2zM20 8h-2V5h2v3zm0-5H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 10c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2V5h10v8zm4-5h-2V5h2v3z"/></svg>
+                        <h3>Cafés & Boissons Chaudes</h3>
+                        <p>Des cafés de qualité pour bien démarrer la journée</p>
+                        <ul class="carte-items">
+                            <li>Espresso & Allongé</li>
+                            <li>Cappuccino & Latte</li>
+                            <li>Chocolat chaud</li>
+                            <li>Thés & Infusions</li>
+                        </ul>
+                    </div>
+
+                    <!-- Boissons & Grignotages -->
+                    <div class="carte-card">
+                        <svg class="carte-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5V3H3v2l8 9v5H6v2h12v-2h-5v-5l8-9zM7.43 7L5.66 5h12.69l-1.78 2H7.43z"/></svg>
+                        <h3>Boissons & Grignotages</h3>
+                        <p>De quoi trinquer et grignoter à toute heure</p>
+                        <ul class="carte-items">
+                            <li>Vins & Bulles</li>
+                            <li>Cocktails maison</li>
+                            <li>Softs & Jus frais</li>
+                            <li>Planches de charcuterie</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <section class="ambiance-section" aria-label="Ambiance du bar">
-            <img src="images/ambiance.jpg" alt="Ambiance chaleureuse du bar avec café fumant et oranges fraîches sur le comptoir" class="ambiance-photo">
-            <p>Café, gourmandises et bonne humeur</p>
+        <!-- Votre hôte Section -->
+        <section id="votre-hote" class="francois-section" aria-labelledby="hote-titre">
+            <div class="container fade-in">
+                <div class="section-separator"></div>
+                <h2 id="hote-titre" class="section-title">Votre Hôte</h2>
+                <div class="francois-card">
+                    <div class="francois-photo-wrapper">
+                        <img src="images/patron.jpg" alt="François, propriétaire du bar Le Wagon, souriant derrière le comptoir" class="francois-photo">
+                    </div>
+                    <div class="francois-text">
+                        <h2 aria-hidden="true">François</h2>
+                        <blockquote class="francois-quote">
+                            J'ai voulu créer un lieu où l'on se sent chez soi, où chaque client repart avec le sourire et l'envie de revenir.
+                        </blockquote>
+                        <p class="francois-desc">
+                            Passionné par le contact humain et les bonnes choses, François a ouvert Le Wagon pour partager sa vision d'un bar chaleureux et authentique. Au comptoir ou en terrasse face au quai de la Fosse, il vous accueille avec le sourire et une attention particulière. Ici, on prend le temps de papoter, de grignoter et de profiter de l'instant.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <section class="faq-section" aria-labelledby="faq-titre">
-            <h2 id="faq-titre">Questions fréquentes</h2>
-            <dl>
-                <div class="faq-item">
-                    <dt class="faq-question">Où se trouve Le Wagon à Nantes ?</dt>
-                    <dd class="faq-answer">Le Wagon est situé au 22 quai de la Fosse, en plein centre-ville de Nantes (44000). Le bar dispose d'une terrasse donnant sur le quai.</dd>
+        <!-- Galerie Section -->
+        <section id="galerie" class="galerie-section" aria-label="Photos du bar">
+            <div class="container fade-in">
+                <div class="section-separator"></div>
+                <h2 class="section-title">L'Ambiance</h2>
+                <p class="section-subtitle">Un lieu chaleureux au bord de l'eau</p>
+
+                <div class="galerie-grid">
+                    <div class="galerie-item">
+                        <img src="images/ambiance.jpg" alt="Ambiance chaleureuse du bar avec café fumant et oranges fraîches sur le comptoir">
+                    </div>
+                    <div class="galerie-item">
+                        <img src="images/623378642_25696026346673621_6573485341025399040_n.jpg" alt="Terrasse du bar Le Wagon sur le quai de la Fosse">
+                    </div>
+                    <div class="galerie-item">
+                        <img src="images/planche.jpg" alt="Planche de charcuterie servie au bar Le Wagon">
+                    </div>
+                    <div class="galerie-item">
+                        <img src="images/menthealeau.jpg" alt="Menthe à l'eau fraîche préparée au Wagon">
+                    </div>
+                    <div class="galerie-item">
+                        <img src="images/Identity-Le-Wagon.jpg" alt="Identité visuelle du Wagon">
+                    </div>
                 </div>
-                <div class="faq-item">
-                    <dt class="faq-question">Quels sont les horaires d'ouverture ?</dt>
-                    <dd class="faq-answer">Le Wagon est ouvert du mardi au samedi. Mardi et mercredi de 8h à 18h, jeudi et vendredi de 8h à minuit, et samedi de 8h45 à 16h. Fermé le dimanche et le lundi.</dd>
-                </div>
-                <div class="faq-item">
-                    <dt class="faq-question">Qui est le patron du Wagon ?</dt>
-                    <dd class="faq-answer">François est le propriétaire et gérant du Wagon. Il vous accueille avec le sourire dans son bar à papote et à grignote.</dd>
-                </div>
-                <div class="faq-item">
-                    <dt class="faq-question">Que peut-on manger et boire au Wagon ?</dt>
-                    <dd class="faq-answer">Le Wagon propose des cafés, boissons et petites gourmandises à grignoter dans une ambiance conviviale.</dd>
-                </div>
-            </dl>
+            </div>
         </section>
 
+        <!-- Avis Section -->
+        <section id="avis" class="avis-section" aria-labelledby="avis-titre">
+            <div class="container fade-in">
+                <div class="section-separator"></div>
+                <h2 id="avis-titre" class="section-title">Ce Qu'ils en Disent</h2>
+                <p class="section-subtitle">Les retours de nos clients</p>
+
+                <div class="avis-grid">
+                    <div class="avis-card">
+                        <div class="avis-stars" aria-label="5 étoiles sur 5">
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        </div>
+                        <p class="avis-text">"Amazing place, can totally recommend it, super nice staff!"</p>
+                        <p class="avis-author">- Stefan Lederer <span style="opacity:0.6;font-size:0.8rem;">Local Guide</span></p>
+                    </div>
+                    <div class="avis-card">
+                        <div class="avis-stars" aria-label="5 étoiles sur 5">
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        </div>
+                        <p class="avis-text">"Un nouveau super petit bar Nantais, tenu par un patron adorable, y aller c'est l'adopter ! Vivement le p'tit retour de beau temps pour la terrasse."</p>
+                        <p class="avis-author">- Maxime Duval</p>
+                    </div>
+                    <div class="avis-card">
+                        <div class="avis-stars" aria-label="5 étoiles sur 5">
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        </div>
+                        <p class="avis-text">"Un bar très sympa face à la médiathèque et petite Hollande pour se poser en terrasse au retour du marché ! Les planches sont top."</p>
+                        <p class="avis-author">- Jessie Caron</p>
+                    </div>
+                </div>
+
+                <div class="avis-cta">
+                    <a href="https://maps.app.goo.gl/eS6dcKn4ZA5TB7jP8" target="_blank" rel="noopener noreferrer" aria-label="Laisser un avis sur Google Maps (ouvre dans un nouvel onglet)">
+                        Laisser un avis sur Google &rarr;
+                        <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="faq-section" aria-labelledby="faq-titre">
+            <div class="container fade-in">
+                <div class="section-separator"></div>
+                <h2 id="faq-titre" class="section-title">Questions Fréquentes</h2>
+                <div class="faq-list">
+                    <dl>
+                        <div class="faq-item">
+                            <dt class="faq-question">Où se trouve Le Wagon à Nantes ?</dt>
+                            <dd class="faq-answer">Le Wagon est situé au 22 quai de la Fosse, en plein centre-ville de Nantes (44000). Le bar dispose d'une terrasse donnant sur le quai.</dd>
+                        </div>
+                        <div class="faq-item">
+                            <dt class="faq-question">Quels sont les horaires d'ouverture ?</dt>
+                            <dd class="faq-answer">Le Wagon est ouvert du mardi au samedi. Mardi et mercredi de 8h à 18h, jeudi et vendredi de 8h à minuit, et samedi de 8h45 à 16h. Fermé le dimanche et le lundi.</dd>
+                        </div>
+                        <div class="faq-item">
+                            <dt class="faq-question">Qui est le patron du Wagon ?</dt>
+                            <dd class="faq-answer">François est le propriétaire et gérant du Wagon. Il vous accueille avec le sourire dans son bar à papote et à grignote.</dd>
+                        </div>
+                        <div class="faq-item">
+                            <dt class="faq-question">Que peut-on manger et boire au Wagon ?</dt>
+                            <dd class="faq-answer">Le Wagon propose des cafés de qualité, boissons chaudes, bières artisanales, vins, cocktails maison et petites gourmandises à grignoter dans une ambiance conviviale.</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nous Trouver / Google Maps Section -->
+        <section id="nous-trouver" class="map-section" aria-labelledby="map-titre">
+            <div class="container fade-in">
+                <div class="section-separator"></div>
+                <h2 id="map-titre" class="section-title">Nous Trouver</h2>
+
+                <div class="map-wrapper">
+                    <div class="map-iframe-wrapper">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2710.5!2d-1.5635!3d47.2112!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4805ee476a5bb4f1%3A0x4e90b838130f6ab5!2s22%20Quai%20de%20la%20Fosse%2C%2044000%20Nantes!5e0!3m2!1sfr!2sfr!4v1700000000000!5m2!1sfr!2sfr"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Carte Google Maps - Le Wagon, 22 quai de la Fosse, Nantes">
+                        </iframe>
+                    </div>
+                    <div class="map-info">
+                        <h3>Le Wagon</h3>
+                        <div class="map-info-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <div>
+                                <strong>Adresse</strong><br>
+                                22 quai de la Fosse<br>
+                                44000 Nantes
+                            </div>
+                        </div>
+                        <div class="map-info-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/></svg>
+                            <div>
+                                <strong>Transports</strong><br>
+                                Tramway Ligne 1 - Arrêt Chantiers Navals<br>
+                                Bus C5 - Quai de la Fosse
+                            </div>
+                        </div>
+                        <div class="map-info-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                            <div>
+                                <strong>Horaires</strong><br>
+                                Mar-Mer : 8h-18h<br>
+                                Jeu-Ven : 8h-00h<br>
+                                Sam : 8h45-16h
+                            </div>
+                        </div>
+                        <div class="map-info-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            <div>
+                                <a href="https://maps.app.goo.gl/eS6dcKn4ZA5TB7jP8" target="_blank" rel="noopener noreferrer">
+                                    Itinéraire Google Maps &rarr;
+                                    <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Section -->
         <section class="social-section" aria-labelledby="social-titre">
-            <h2 id="social-titre">Retrouvez-nous</h2>
-            <nav class="social-links" aria-label="Liens vers nos réseaux sociaux">
-                <a href="https://www.facebook.com/profile.php?id=61587126582087&utm_source=lewagon_landing&utm_medium=social&utm_campaign=lancement_2026&utm_content=facebook_bar" target="_blank" rel="noopener noreferrer" class="social-link facebook" aria-label="Page Facebook du bar Le Wagon (ouvre dans un nouvel onglet)">
-                    <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    Facebook
-                    <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
-                </a>
-                <a href="https://www.instagram.com/bar.lewagon/?utm_source=lewagon_landing&utm_medium=social&utm_campaign=lancement_2026&utm_content=instagram" target="_blank" rel="noopener noreferrer" class="social-link instagram" aria-label="Compte Instagram du bar Le Wagon (ouvre dans un nouvel onglet)">
-                    <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                    Instagram
-                    <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
-                </a>
-                <a href="https://maps.app.goo.gl/eS6dcKn4ZA5TB7jP8?utm_source=lewagon_landing&utm_medium=social&utm_campaign=lancement_2026&utm_content=google_maps" target="_blank" rel="noopener noreferrer" class="social-link google" aria-label="Localisation du bar Le Wagon sur Google Maps (ouvre dans un nouvel onglet)">
-                    <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M12 0C7.31 0 3.5 3.81 3.5 8.5c0 5.94 7.39 14.22 8.02 14.93.19.21.46.33.75.33h.02c.29 0 .56-.12.75-.33.63-.71 8.02-8.99 8.02-14.93C21 3.81 17.19 0 12.5 0h-.5zM12 12c-1.93 0-3.5-1.57-3.5-3.5S10.07 5 12 5s3.5 1.57 3.5 3.5S13.93 12 12 12z"/>
-                    </svg>
-                    Google Maps
-                    <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
-                </a>
-            </nav>
+            <div class="container fade-in">
+                <div class="section-separator"></div>
+                <h2 id="social-titre" class="section-title">Retrouvez-nous</h2>
+                <nav class="social-links" aria-label="Liens vers nos réseaux sociaux">
+                    <a href="https://www.facebook.com/profile.php?id=61587126582087&utm_source=lewagon_landing&utm_medium=social&utm_campaign=lancement_2026&utm_content=facebook_bar" target="_blank" rel="noopener noreferrer" class="social-link facebook" aria-label="Page Facebook du bar Le Wagon (ouvre dans un nouvel onglet)">
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Facebook
+                        <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
+                    </a>
+                    <a href="https://www.instagram.com/bar.lewagon/?utm_source=lewagon_landing&utm_medium=social&utm_campaign=lancement_2026&utm_content=instagram" target="_blank" rel="noopener noreferrer" class="social-link instagram" aria-label="Compte Instagram du bar Le Wagon (ouvre dans un nouvel onglet)">
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                        Instagram
+                        <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
+                    </a>
+                    <a href="https://maps.app.goo.gl/eS6dcKn4ZA5TB7jP8?utm_source=lewagon_landing&utm_medium=social&utm_campaign=lancement_2026&utm_content=google_maps" target="_blank" rel="noopener noreferrer" class="social-link google" aria-label="Localisation du bar Le Wagon sur Google Maps (ouvre dans un nouvel onglet)">
+                        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 0C7.31 0 3.5 3.81 3.5 8.5c0 5.94 7.39 14.22 8.02 14.93.19.21.46.33.75.33h.02c.29 0 .56-.12.75-.33.63-.71 8.02-8.99 8.02-14.93C21 3.81 17.19 0 12.5 0h-.5zM12 12c-1.93 0-3.5-1.57-3.5-3.5S10.07 5 12 5s3.5 1.57 3.5 3.5S13.93 12 12 12z"/>
+                        </svg>
+                        Google Maps
+                        <span class="visually-hidden">(ouvre dans un nouvel onglet)</span>
+                    </a>
+                </nav>
+            </div>
         </section>
+
     </main>
 
-    <footer role="contentinfo">
-        <p>Le Wagon - Bar à Papote et à Grignote</p>
-        <address>22 quai de la Fosse, 44000 Nantes</address>
-        <p><a href="https://www.societe.com/societe/boscu-999201239.html?utm_source=lewagon_landing&utm_medium=website&utm_campaign=lancement_2026&utm_content=societe" target="_blank" rel="noopener noreferrer" style="color: #b0b0b0; text-decoration: none;" aria-label="Informations légales BOSCU SARL (ouvre dans un nouvel onglet)">BOSCU SARL - RCS Nantes 999 201 239 <span class="visually-hidden">(ouvre dans un nouvel onglet)</span></a></p>
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <img src="images/Le-Wagon_Logo-2.jpg" alt="Logo Le Wagon" class="footer-logo">
+                <p>Le Wagon, votre bar à papote et à grignote au coeur de Nantes. Un lieu chaleureux pour prendre le temps de vivre.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Horaires</h4>
+                <address>
+                    Mar - Mer : 8h - 18h<br>
+                    Jeu - Ven : 8h - 00h<br>
+                    Sam : 8h45 - 16h<br>
+                    Dim - Lun : Fermé
+                </address>
+            </div>
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <address>
+                    22 quai de la Fosse<br>
+                    44000 Nantes<br><br>
+                    <a href="https://maps.app.goo.gl/eS6dcKn4ZA5TB7jP8" target="_blank" rel="noopener noreferrer">Itinéraire &rarr;</a>
+                </address>
+            </div>
+            <div class="footer-col">
+                <h4>Suivez-nous</h4>
+                <div class="footer-social-icons">
+                    <a href="https://www.facebook.com/profile.php?id=61587126582087" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Facebook (ouvre dans un nouvel onglet)">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <a href="https://www.instagram.com/bar.lewagon/" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Instagram (ouvre dans un nouvel onglet)">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                    <a href="https://maps.app.goo.gl/eS6dcKn4ZA5TB7jP8" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Google Maps (ouvre dans un nouvel onglet)">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C7.31 0 3.5 3.81 3.5 8.5c0 5.94 7.39 14.22 8.02 14.93.19.21.46.33.75.33h.02c.29 0 .56-.12.75-.33.63-.71 8.02-8.99 8.02-14.93C21 3.81 17.19 0 12.5 0h-.5zM12 12c-1.93 0-3.5-1.57-3.5-3.5S10.07 5 12 5s3.5 1.57 3.5 3.5S13.93 12 12 12z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Le Wagon - Bar à Papote et à Grignote. Tous droits réservés.</p>
+            <p><a href="https://www.societe.com/societe/boscu-999201239.html" target="_blank" rel="noopener noreferrer" aria-label="Informations légales BOSCU SARL (ouvre dans un nouvel onglet)">BOSCU SARL - RCS Nantes 999 201 239</a></p>
+        </div>
     </footer>
 
+    <!-- JavaScript: Open/Closed indicator, scroll animations, sticky nav, hamburger -->
+    <script>
+    (function() {
+        'use strict';
+
+        // === Open/Closed Status ===
+        function updateStatus() {
+            var now = new Date();
+            var day = now.getDay(); // 0=Sunday, 1=Monday ... 6=Saturday
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var time = hours * 60 + minutes;
+
+            var isOpen = false;
+            // Tuesday(2), Wednesday(3): 8:00 - 18:00
+            if ((day === 2 || day === 3) && time >= 480 && time < 1080) {
+                isOpen = true;
+            }
+            // Thursday(4), Friday(5): 8:00 - 24:00
+            if ((day === 4 || day === 5) && time >= 480) {
+                isOpen = true;
+            }
+            // Saturday(6): 8:45 - 16:00
+            if (day === 6 && time >= 525 && time < 960) {
+                isOpen = true;
+            }
+
+            var indicator = document.getElementById('status-indicator');
+            var statusText = document.getElementById('status-text');
+            if (indicator && statusText) {
+                if (isOpen) {
+                    indicator.className = 'horaires-status open';
+                    statusText.textContent = 'Ouvert actuellement';
+                } else {
+                    indicator.className = 'horaires-status closed';
+                    statusText.textContent = 'Fermé actuellement';
+                }
+            }
+
+            // Highlight today's row
+            var rows = document.querySelectorAll('.horaires-row[data-day]');
+            rows.forEach(function(row) {
+                row.classList.remove('today');
+                if (parseInt(row.getAttribute('data-day')) === day) {
+                    row.classList.add('today');
+                }
+            });
+        }
+
+        updateStatus();
+        setInterval(updateStatus, 60000);
+
+        // === Scroll Animations (IntersectionObserver) ===
+        var fadeEls = document.querySelectorAll('.fade-in');
+        if ('IntersectionObserver' in window) {
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            fadeEls.forEach(function(el) { observer.observe(el); });
+        } else {
+            fadeEls.forEach(function(el) { el.classList.add('visible'); });
+        }
+
+        // === Sticky Navigation ===
+        var nav = document.querySelector('.nav-sticky');
+        var hero = document.querySelector('.hero');
+        if (nav && hero) {
+            var heroHeight = hero.offsetHeight;
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > heroHeight - 100) {
+                    nav.classList.add('show');
+                } else {
+                    nav.classList.remove('show');
+                }
+            }, { passive: true });
+        }
+
+        // === Hamburger Menu ===
+        var hamburger = document.querySelector('.nav-hamburger');
+        var navLinks = document.querySelector('.nav-links');
+        if (hamburger && navLinks) {
+            hamburger.addEventListener('click', function() {
+                var isOpen = navLinks.classList.toggle('open');
+                hamburger.setAttribute('aria-expanded', isOpen);
+            });
+
+            // Close on link click
+            navLinks.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('open');
+                    hamburger.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+    })();
+    </script>
 </body>
 </html>
