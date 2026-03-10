@@ -24,8 +24,9 @@ type Invoice = {
 export default function FacturesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
-  const [uploading, setUploading] = useState(false)
+  const [uploading, setUploading] = useState(0) // count of files being uploaded
   const [dragOver, setDragOver] = useState(false)
+  const [feedback, setFeedback] = useState<{ type: 'ok' | 'dup' | 'err'; text: string }[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -35,26 +36,44 @@ export default function FacturesPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const processFile = useCallback(async (file: File) => {
-    if (!file) return
-    setUploading(true)
+  const processFiles = useCallback(async (files: FileList | File[]) => {
+    const fileArray = Array.from(files)
+    if (fileArray.length === 0) return
 
-    const formData = new FormData()
-    formData.append('file', file)
+    setUploading(fileArray.length)
+    setFeedback([])
+    const newFeedback: typeof feedback = []
 
-    try {
-      const res = await fetch('/api/invoices/upload', {
-        method: 'POST',
-        body: formData,
-      })
-      const data = await res.json()
-      if (data.invoice) {
-        setInvoices(prev => [data.invoice, ...prev])
+    for (const file of fileArray) {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      try {
+        const res = await fetch('/api/invoices/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        const data = await res.json()
+
+        if (data.duplicate) {
+          newFeedback.push({ type: 'dup', text: `${file.name} — déjà importée` })
+        } else if (data.invoice) {
+          setInvoices(prev => [data.invoice, ...prev])
+          newFeedback.push({ type: 'ok', text: `${file.name} — ${data.invoice.fournisseur} ${data.invoice.montant_ttc?.toFixed(0)}€` })
+        } else if (data.error) {
+          newFeedback.push({ type: 'err', text: `${file.name} — ${data.error}` })
+        }
+      } catch {
+        newFeedback.push({ type: 'err', text: `${file.name} — erreur réseau` })
       }
-    } catch {
-      // silently fail
+
+      setUploading(prev => prev - 1)
+      setFeedback([...newFeedback])
     }
-    setUploading(false)
+
+    setUploading(0)
+    // Clear feedback after 8 seconds
+    setTimeout(() => setFeedback([]), 8000)
   }, [])
 
   const totalExpenses = invoices.reduce((s, i) => s + (i.montant_ttc || 0), 0)
@@ -67,8 +86,8 @@ export default function FacturesPage() {
       <div
         onDragOver={e => { e.preventDefault(); setDragOver(true) }}
         onDragLeave={() => setDragOver(false)}
-        onDrop={e => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files[0]; if (f) processFile(f) }}
-        onClick={() => !uploading && fileInputRef.current?.click()}
+        onDrop={e => { e.preventDefault(); setDragOver(false); processFiles(e.dataTransfer.files) }}
+        onClick={() => uploading === 0 && fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
           dragOver ? 'border-amber-400 bg-amber-400/5 scale-[1.01]' : 'border-stone-700 hover:border-stone-500 hover:bg-stone-900/50'
         }`}
@@ -77,24 +96,44 @@ export default function FacturesPage() {
           ref={fileInputRef}
           type="file"
           accept="image/*,.pdf"
+          multiple
           className="hidden"
-          onChange={e => e.target.files?.[0] && processFile(e.target.files[0])}
+          onChange={e => e.target.files && processFiles(e.target.files)}
         />
-        {uploading ? (
+        {uploading > 0 ? (
           <div className="text-amber-400">
             <div className="text-4xl mb-3 animate-pulse">⏳</div>
-            <div className="font-medium">L'IA analyse ta facture...</div>
+            <div className="font-medium">L'IA analyse {uploading > 1 ? `${uploading} factures` : 'ta facture'}...</div>
             <div className="text-stone-500 text-sm mt-1">Extraction des montants, fournisseur, catégorie</div>
           </div>
         ) : (
           <div className="text-stone-400">
             <div className="text-5xl mb-4">📄</div>
-            <div className="font-semibold text-stone-200 text-lg">Dépose ta facture ici</div>
+            <div className="font-semibold text-stone-200 text-lg">Dépose tes factures ici</div>
             <div className="text-sm mt-2">PDF ou photo — L'IA extrait tout automatiquement</div>
-            <div className="text-xs mt-1 text-stone-600">ABN, Promocash, EDF, loyer...</div>
+            <div className="text-xs mt-1 text-stone-600">Tu peux en déposer plusieurs d'un coup</div>
           </div>
         )}
       </div>
+
+      {/* Upload feedback */}
+      {feedback.length > 0 && (
+        <div className="space-y-1">
+          {feedback.map((f, i) => (
+            <div
+              key={i}
+              className="text-xs px-3 py-2 rounded-lg"
+              style={{
+                background: f.type === 'ok' ? 'rgba(74,222,128,0.1)' : f.type === 'dup' ? 'rgba(212,165,116,0.1)' : 'rgba(248,113,113,0.1)',
+                color: f.type === 'ok' ? '#4ade80' : f.type === 'dup' ? 'var(--gold)' : '#f87171',
+              }}
+            >
+              {f.type === 'dup' ? '⚠️ Doublon : ' : f.type === 'ok' ? '✓ ' : '✗ '}
+              {f.text}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Invoice list */}
       {loading ? (
