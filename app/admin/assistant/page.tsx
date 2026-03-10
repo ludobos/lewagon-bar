@@ -1,6 +1,36 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, ReactNode } from 'react'
+
+function renderText(text: string): ReactNode[] {
+  // Parse **bold** and render as <strong>
+  return text.split('\n').map((line, i) => {
+    const parts: ReactNode[] = []
+    let remaining = line
+    let key = 0
+    while (remaining.length > 0) {
+      const boldStart = remaining.indexOf('**')
+      if (boldStart === -1) {
+        parts.push(remaining)
+        break
+      }
+      const boldEnd = remaining.indexOf('**', boldStart + 2)
+      if (boldEnd === -1) {
+        parts.push(remaining)
+        break
+      }
+      if (boldStart > 0) parts.push(remaining.slice(0, boldStart))
+      parts.push(
+        <strong key={key++} style={{ color: 'var(--gold-light)' }}>
+          {remaining.slice(boldStart + 2, boldEnd)}
+        </strong>
+      )
+      remaining = remaining.slice(boldEnd + 2)
+    }
+    if (i < text.split('\n').length - 1) parts.push(<br key={`br${i}`} />)
+    return <span key={i}>{parts}</span>
+  })
+}
 
 type Message = {
   role: 'user' | 'assistant'
@@ -100,16 +130,7 @@ export default function AssistantPage() {
                 : { background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #333', borderTopLeftRadius: '4px' }
               }
             >
-              {msg.content.split('\n').map((line, j) => (
-                <span key={j}>
-                  {line.split(/(\*\*[^*]+\*\*)/).map((part, k) =>
-                    part.startsWith('**') && part.endsWith('**')
-                      ? <strong key={k} style={{ color: 'var(--gold-light)' }}>{part.slice(2, -2)}</strong>
-                      : part
-                  )}
-                  {j < msg.content.split('\n').length - 1 && <br />}
-                </span>
-              ))}
+              {renderText(msg.content)}
             </div>
           </div>
         ))}
