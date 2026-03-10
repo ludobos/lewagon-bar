@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0c0a09',
+  themeColor: '#1a1a1a',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <body className="bg-stone-950 text-stone-100 antialiased">{children}</body>
+      <body className="antialiased overflow-x-hidden">{children}</body>
     </html>
   )
 }

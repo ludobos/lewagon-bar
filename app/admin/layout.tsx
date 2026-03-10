@@ -15,7 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname()
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-dark)' }}>
+    <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ background: 'var(--bg-dark)' }}>
       {/* Top bar */}
       <header className="sticky top-0 z-10 px-4 py-3 flex items-center justify-between" style={{ background: 'var(--bg-card)', borderBottom: '1px solid #333' }}>
         <div>
