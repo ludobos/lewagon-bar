@@ -58,7 +58,7 @@ export default function CaissePage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-amber-400">Caisse</h1>
+        <h1 className="playfair text-lg font-bold" style={{ color: 'var(--gold)' }}>Caisse</h1>
         <button
           onClick={() => setShowForm(!showForm)}
           className="btn-primary text-sm !py-2 !px-4"

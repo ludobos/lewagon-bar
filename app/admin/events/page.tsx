@@ -65,7 +65,7 @@ export default function EventsPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="playfair text-xl font-bold text-amber-400">Événements</h1>
+      <h1 className="playfair text-lg font-bold" style={{ color: 'var(--gold)' }}>Événements</h1>
 
       {/* Form */}
       <div className="card space-y-4">

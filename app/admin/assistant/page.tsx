@@ -68,14 +68,14 @@ export default function AssistantPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
-      <h1 className="playfair text-xl font-bold text-amber-400 mb-2">Assistant</h1>
+      <h1 className="playfair text-lg font-bold mb-2" style={{ color: 'var(--gold)' }}>Assistant</h1>
 
       {/* Context indicator */}
-      <div className="flex gap-3 text-xs text-stone-500 mb-3 flex-wrap">
-        <span>📊 Ventes en DB</span>
-        <span>📄 Factures en DB</span>
-        <span>📅 Événements en DB</span>
-        <span className="text-amber-600">← Plus tu saisis, plus j'analyse bien</span>
+      <div className="flex gap-3 text-xs mb-3 flex-wrap" style={{ color: 'var(--text-muted)' }}>
+        <span>📊 Ventes</span>
+        <span>📄 Factures</span>
+        <span>📅 Événements</span>
+        <span style={{ color: 'var(--gold)' }}>← Plus tu saisis, plus j'analyse bien</span>
       </div>
 
       {/* Messages */}
@@ -86,16 +86,17 @@ export default function AssistantPage() {
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.role === 'assistant' && (
-              <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-sm mr-2 mt-1 shrink-0">
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm mr-2 mt-1 shrink-0"
+                style={{ background: 'rgba(212,165,116,0.2)', border: '1px solid rgba(212,165,116,0.3)' }}>
                 🤖
               </div>
             )}
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-amber-500/20 text-amber-100 border border-amber-500/20 rounded-tr-sm'
-                  : 'bg-stone-800 text-stone-200 border border-stone-700/50 rounded-tl-sm'
-              }`}
+              className="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
+              style={msg.role === 'user'
+                ? { background: 'rgba(212,165,116,0.15)', color: 'var(--gold-light)', border: '1px solid rgba(212,165,116,0.2)', borderTopRightRadius: '4px' }
+                : { background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid #333', borderTopLeftRadius: '4px' }
+              }
             >
               {msg.content.split('\n').map((line, j) => (
                 <span key={j}>
@@ -109,10 +110,11 @@ export default function AssistantPage() {
 
         {loading && (
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-sm shrink-0">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-sm shrink-0"
+              style={{ background: 'rgba(212,165,116,0.2)', border: '1px solid rgba(212,165,116,0.3)' }}>
               🤖
             </div>
-            <div className="bg-stone-800 border border-stone-700/50 rounded-2xl px-4 py-2.5 text-stone-400 text-sm">
+            <div className="rounded-2xl px-4 py-2.5 text-sm" style={{ background: 'var(--bg-card)', border: '1px solid #333', color: 'var(--text-muted)' }}>
               <span className="animate-pulse">Analyse en cours...</span>
             </div>
           </div>
@@ -122,12 +124,13 @@ export default function AssistantPage() {
       </div>
 
       {/* Quick questions */}
-      <div className="flex gap-2 flex-wrap py-2 border-t border-stone-800">
+      <div className="flex gap-2 flex-wrap py-2" style={{ borderTop: '1px solid #333' }}>
         {QUICK_QUESTIONS.map(q => (
           <button
             key={q}
             onClick={() => send(q)}
-            className="text-xs bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-stone-200 px-3 py-1.5 rounded-full border border-stone-700 transition-colors"
+            className="text-xs px-3 py-1.5 rounded-full transition-colors"
+            style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid #444' }}
           >
             {q}
           </button>

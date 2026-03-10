@@ -61,7 +61,7 @@ export default function FacturesPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="playfair text-xl font-bold text-amber-400">Factures</h1>
+      <h1 className="playfair text-lg font-bold" style={{ color: 'var(--gold)' }}>Factures</h1>
 
       {/* Drop zone */}
       <div
