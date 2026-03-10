@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-stone-950 text-stone-100;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6);
+  }
+
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-track { background: #1c1917; }
+  ::-webkit-scrollbar-thumb { background: #57534e; border-radius: 2px; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-amber-500 hover:bg-amber-400 active:bg-amber-600
+           disabled:opacity-40 disabled:cursor-not-allowed
+           text-stone-950 font-bold px-5 py-3 rounded-xl
+           transition-colors text-base;
+  }
+
+  .btn-secondary {
+    @apply bg-stone-800 hover:bg-stone-700 active:bg-stone-900
+           text-stone-200 font-medium px-5 py-3 rounded-xl
+           border border-stone-700 transition-colors text-base;
+  }
+
+  .card {
+    @apply bg-stone-900 rounded-2xl border border-stone-800 p-5;
+  }
+
+  .input {
+    @apply w-full bg-stone-800 border border-stone-700 rounded-xl
+           px-4 py-3 text-stone-100 text-base
+           focus:border-amber-400 focus:outline-none
+           placeholder-stone-600 transition-colors;
+  }
+
+  .select {
+    @apply w-full bg-stone-800 border border-stone-700 rounded-xl
+           px-4 py-3 text-stone-100 text-base
+           focus:border-amber-400 focus:outline-none transition-colors;
+  }
+
+  .label {
+    @apply block text-stone-500 text-sm mb-1.5;
+  }
+
+  .stat-value {
+    @apply text-2xl font-bold leading-none;
+  }
+
+  .stat-label {
+    @apply text-stone-500 text-xs mt-1;
+  }
+}
