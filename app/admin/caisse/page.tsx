@@ -111,7 +111,7 @@ export default function CaissePage() {
       <div className="card !p-3">
         <div className="text-xs font-medium mb-2" style={{ color: 'var(--text-muted)' }}>CA journalier</div>
         <div className="space-y-0.5">
-          {days.map(d => {
+          {[...days].reverse().map(d => {
             const pct = Math.max(3, (d.ca / maxCa) * 100)
             const dateStr = new Date(d.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
             const above = d.ca >= avg
