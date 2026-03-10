@@ -53,14 +53,16 @@ export default function AssistantPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages.filter(m => m.content !== WELCOME) }),
       })
-      const data = await res.json()
-      if (data.content) {
-        setMessages([...newMessages, { role: 'assistant', content: data.content }])
+      if (!res.ok) {
+        let errMsg = `Erreur ${res.status}`
+        try { const d = await res.json(); errMsg = d.error || errMsg } catch {}
+        setMessages([...newMessages, { role: 'assistant', content: errMsg }])
       } else {
-        setMessages([...newMessages, { role: 'assistant', content: data.error || 'Désolé, je n\'ai pas pu répondre.' }])
+        const data = await res.json()
+        setMessages([...newMessages, { role: 'assistant', content: data.content || data.error || 'Pas de réponse.' }])
       }
-    } catch {
-      setMessages([...newMessages, { role: 'assistant', content: 'Erreur de connexion.' }])
+    } catch (err: any) {
+      setMessages([...newMessages, { role: 'assistant', content: `Erreur réseau: ${err?.message || 'connexion impossible'}` }])
     }
 
     setLoading(false)

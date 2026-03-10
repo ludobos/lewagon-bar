@@ -1,164 +1,134 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 
-type Transaction = {
-  id: string
-  date: string
-  amount: string
-  payment_type: string
-  note: string | null
-  sumup_id: string | null
-}
+type DayData = { date: string; ca: number; nb: number }
+
+const JOURS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+const BAR_COLORS = ['#a0a0a0', '#6ba3d6', '#22d3ee', '#fb923c', '#4ade80']
+const JOURS_BAR = [2, 3, 4, 5, 6]
+
+function fmt(n: number) { return Math.round(n).toLocaleString('fr-FR') }
 
 export default function CaissePage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [days, setDays] = useState<DayData[]>([])
   const [loading, setLoading] = useState(true)
-  const [showForm, setShowForm] = useState(false)
-  const [saving, setSaving] = useState(false)
 
-  const today = new Date().toISOString().slice(0, 10)
-  const [amount, setAmount] = useState('')
-  const [date, setDate] = useState(today)
-  const [paymentType, setPaymentType] = useState('cash')
-
-  const loadTransactions = useCallback(async () => {
-    setLoading(true)
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = now.getMonth() + 1
-    const res = await fetch(`/api/transactions?year=${year}&month=${month}`)
-    if (res.ok) {
-      const data = await res.json()
-      setTransactions(data.transactions || [])
-    }
-    setLoading(false)
+  useEffect(() => {
+    fetch('/api/transactions?days=30')
+      .then(r => r.json())
+      .then(data => setDays(data.days || []))
+      .finally(() => setLoading(false))
   }, [])
 
-  useEffect(() => { loadTransactions() }, [loadTransactions])
+  if (loading) return <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>Chargement...</div>
 
-  const handleSubmit = async () => {
-    if (!amount || parseFloat(amount) <= 0) return
-    setSaving(true)
-    await fetch('/api/transactions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, date, payment_type: paymentType }),
-    })
-    setAmount('')
-    setDate(today)
-    setPaymentType('cash')
-    setShowForm(false)
-    setSaving(false)
-    loadTransactions()
-  }
+  const total = days.reduce((s, d) => s + d.ca, 0)
+  const avg = days.length > 0 ? total / days.length : 0
+  const best = days.length > 0 ? Math.max(...days.map(d => d.ca)) : 0
+  const worst = days.length > 0 ? Math.min(...days.map(d => d.ca)) : 0
+  const nbTx = days.reduce((s, d) => s + d.nb, 0)
+  const ticketMoyen = nbTx > 0 ? total / nbTx : 0
 
-  const total = transactions.reduce((s, t) => s + parseFloat(t.amount), 0)
+  // CA par jour de la semaine
+  const byWeekday: Record<number, { total: number; count: number }> = {}
+  days.forEach(d => {
+    const dow = new Date(d.date).getDay()
+    if (!byWeekday[dow]) byWeekday[dow] = { total: 0, count: 0 }
+    byWeekday[dow].total += d.ca
+    byWeekday[dow].count++
+  })
+
+  const maxWeekdayAvg = Math.max(...JOURS_BAR.map(dow => byWeekday[dow] ? byWeekday[dow].total / byWeekday[dow].count : 0))
+  const bestDow = JOURS_BAR.reduce((best, dow) => {
+    const avg = byWeekday[dow] ? byWeekday[dow].total / byWeekday[dow].count : 0
+    const bestAvg = byWeekday[best] ? byWeekday[best].total / byWeekday[best].count : 0
+    return avg > bestAvg ? dow : best
+  }, JOURS_BAR[0])
+
+  // Périodes (basé sur timestamps des transactions - approximation)
+  const maxCa = days.length > 0 ? Math.max(...days.map(d => d.ca)) : 1
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="playfair text-lg font-bold" style={{ color: 'var(--gold)' }}>Caisse</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="btn-primary text-sm !py-2 !px-4"
-        >
-          {showForm ? 'Annuler' : '+ Ajouter'}
-        </button>
+    <div className="space-y-4">
+      <h1 className="playfair text-lg font-bold" style={{ color: 'var(--gold)' }}>30 derniers jours</h1>
+
+      {/* Résumé chiffré */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="card !p-3 text-center">
+          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>CA total</div>
+          <div className="text-lg font-bold" style={{ color: 'var(--gold)' }}>{fmt(total)}€</div>
+          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{days.length} jours · {fmt(nbTx)} ventes</div>
+        </div>
+        <div className="card !p-3 text-center">
+          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Ticket moyen</div>
+          <div className="text-lg font-bold" style={{ color: ticketMoyen >= 10 ? '#4ade80' : 'var(--gold)' }}>{ticketMoyen.toFixed(2)}€</div>
+          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>objectif 10€</div>
+        </div>
+        <div className="card !p-3 text-center">
+          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Meilleur jour</div>
+          <div className="text-lg font-bold" style={{ color: '#4ade80' }}>{fmt(best)}€</div>
+        </div>
+        <div className="card !p-3 text-center">
+          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Jour le plus calme</div>
+          <div className="text-lg font-bold" style={{ color: 'var(--text-secondary)' }}>{fmt(worst)}€</div>
+        </div>
       </div>
 
-      {/* Formulaire saisie */}
-      {showForm && (
-        <div className="card space-y-4">
-          <div>
-            <label className="label">Montant (€)</label>
-            <input
-              type="number"
-              inputMode="decimal"
-              step="0.01"
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              placeholder="0,00"
-              className="input text-2xl font-bold text-center"
-              autoFocus
-            />
-          </div>
-
-          <div>
-            <label className="label">Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              className="input"
-            />
-          </div>
-
-          <div>
-            <label className="label">Paiement</label>
-            <div className="flex gap-2">
-              {(['cash', 'card', 'autre'] as const).map(type => (
-                <button
-                  key={type}
-                  onClick={() => setPaymentType(type)}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                    paymentType === type
-                      ? 'bg-amber-500 text-stone-950'
-                      : 'bg-stone-800 text-stone-400 border border-stone-700'
-                  }`}
-                >
-                  {type === 'cash' ? 'Espèces' : type === 'card' ? 'CB' : 'Autre'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button
-            onClick={handleSubmit}
-            disabled={saving || !amount}
-            className="btn-primary w-full"
-          >
-            {saving ? 'Enregistrement...' : 'Enregistrer'}
-          </button>
+      {/* Rythme du bar */}
+      <div className="card !p-3">
+        <div className="text-xs font-medium mb-3" style={{ color: 'var(--text-muted)' }}>CA moyen par jour</div>
+        <div className="flex items-end gap-2 h-28">
+          {JOURS_BAR.map((dow, i) => {
+            const data = byWeekday[dow]
+            const avg = data ? data.total / data.count : 0
+            const pct = maxWeekdayAvg > 0 ? (avg / maxWeekdayAvg) * 100 : 0
+            const isBest = dow === bestDow
+            return (
+              <div key={dow} className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-[10px] font-bold" style={{ color: isBest ? '#4ade80' : 'var(--text-secondary)' }}>
+                  {avg > 0 ? `${fmt(avg)}€` : '--'}
+                </span>
+                <div className="w-full rounded-t transition-all" style={{
+                  height: `${Math.max(8, pct)}%`,
+                  background: BAR_COLORS[i],
+                  opacity: 0.8,
+                }} />
+                <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>{JOURS[dow]}</span>
+              </div>
+            )
+          })}
         </div>
-      )}
-
-      {/* Total du mois */}
-      <div className="card flex justify-between items-center">
-        <span className="text-stone-400 text-sm">Total du mois</span>
-        <span className="text-lg font-bold text-amber-400">
-          {Math.round(total).toLocaleString('fr-FR')} €
-        </span>
+        {byWeekday[bestDow] && (
+          <div className="text-[10px] mt-2 text-center" style={{ color: '#4ade80' }}>
+            {JOURS[bestDow]} = meilleur jour
+            {byWeekday[2] && byWeekday[bestDow] ? ` (${(byWeekday[bestDow].total / byWeekday[bestDow].count / (byWeekday[2].total / byWeekday[2].count)).toFixed(1)}x le Mardi)` : ''}
+          </div>
+        )}
       </div>
 
-      {/* Liste transactions */}
-      {loading ? (
-        <div className="text-center text-stone-500 py-8">Chargement...</div>
-      ) : transactions.length === 0 ? (
-        <div className="card text-center text-stone-500 py-8">Aucune vente ce mois</div>
-      ) : (
-        <div className="space-y-2">
-          {[...transactions].reverse().map(tx => (
-            <div key={tx.id} className="card !p-3 flex justify-between items-center">
-              <div>
-                <div className="text-sm font-medium">
-                  {parseFloat(tx.amount).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €
+      {/* CA journalier 30 jours */}
+      <div className="card !p-3">
+        <div className="text-xs font-medium mb-2" style={{ color: 'var(--text-muted)' }}>CA journalier</div>
+        <div className="space-y-0.5">
+          {days.map(d => {
+            const pct = Math.max(3, (d.ca / maxCa) * 100)
+            const dateStr = new Date(d.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
+            const above = d.ca >= avg
+            return (
+              <div key={d.date} className="flex items-center gap-2 text-xs">
+                <span className="w-16 shrink-0 text-[10px]" style={{ color: 'var(--text-muted)' }}>{dateStr}</span>
+                <div className="flex-1 h-4 rounded overflow-hidden relative" style={{ background: 'var(--bg-card-alt)' }}>
+                  <div className="h-full rounded transition-all" style={{ width: `${pct}%`, background: above ? '#4ade80' : 'var(--gold)', opacity: 0.7 }} />
                 </div>
-                <div className="text-xs text-stone-500">
-                  {new Date(tx.date).toLocaleDateString('fr-FR', {
-                    weekday: 'short', day: 'numeric', month: 'short'
-                  })}
-                  {tx.note && ` — ${tx.note}`}
-                </div>
+                <span className="w-12 text-right text-[10px] font-medium" style={{ color: above ? '#4ade80' : 'var(--text-secondary)' }}>
+                  {fmt(d.ca)}€
+                </span>
               </div>
-              <div className="text-xs text-stone-600">
-                {tx.payment_type === 'cash' ? 'Espèces' : tx.payment_type === 'card' ? 'CB' : tx.payment_type || ''}
-                {tx.sumup_id && ' · SumUp'}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
-      )}
+      </div>
     </div>
   )
 }

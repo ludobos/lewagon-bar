@@ -25,16 +25,6 @@ function getUpcomingEvents(): { date: string; type: string; description: string;
       })
     }
 
-    // Mardi et Samedi : Marché Talensac (ouvert ts les jours sauf lundi mais plus fort mar+sam)
-    if (dow === 2 || dow === 6) {
-      events.push({
-        date: dateStr,
-        type: 'evenement',
-        description: 'Marché Talensac (gros jour) — passage quartier',
-        impact: 'neutre',
-      })
-    }
-
     // Vendredi soir : afterwork quai de la Fosse
     if (dow === 5) {
       events.push({

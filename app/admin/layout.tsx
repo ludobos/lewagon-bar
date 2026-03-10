@@ -5,7 +5,7 @@ import { signOut } from 'next-auth/react'
 
 const TABS = [
   { href: '/admin/dashboard', icon: '📊', label: 'Accueil' },
-  { href: '/admin/caisse', icon: '🧾', label: 'Caisse' },
+  { href: '/admin/caisse', icon: '📈', label: '30 jours' },
   { href: '/admin/factures', icon: '📄', label: 'Factures' },
   { href: '/admin/events', icon: '📅', label: 'Events' },
   { href: '/admin/assistant', icon: '🤖', label: 'Assistant' },

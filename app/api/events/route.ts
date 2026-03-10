@@ -9,7 +9,7 @@ export async function GET() {
   const { rows } = await sql`
     SELECT id, date::text, type, description, impact
     FROM events
-    ORDER BY date DESC
+    ORDER BY date ASC
     LIMIT 50
   `
   return NextResponse.json({ events: rows })
