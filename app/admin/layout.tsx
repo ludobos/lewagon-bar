@@ -7,8 +7,8 @@ const TABS = [
   { href: '/admin/dashboard', icon: '📊', label: 'Accueil' },
   { href: '/admin/caisse', icon: '🧾', label: 'Caisse' },
   { href: '/admin/factures', icon: '📄', label: 'Factures' },
+  { href: '/admin/events', icon: '📅', label: 'Events' },
   { href: '/admin/assistant', icon: '🤖', label: 'Assistant' },
-  { href: '/admin/export', icon: '📤', label: 'Export' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -19,8 +19,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Top bar */}
       <header className="bg-stone-900 border-b border-stone-800 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <div>
-          <div className="text-amber-400 font-bold text-lg leading-none">Le Wagon</div>
-          <div className="text-stone-600 text-xs">22 quai de la Fosse</div>
+          <h1 className="playfair text-2xl text-amber-400 font-bold leading-none">Le Wagon</h1>
+          <p className="text-stone-500 text-xs mt-0.5">22 quai de la Fosse, Nantes</p>
         </div>
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}

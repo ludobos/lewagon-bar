@@ -32,70 +32,83 @@ async function getLast21Days() {
   return rows
 }
 
+async function getRecentEvents() {
+  const { rows } = await sql`
+    SELECT date::text, type, description, impact
+    FROM events
+    WHERE date >= CURRENT_DATE - INTERVAL '30 days'
+    ORDER BY date ASC
+    LIMIT 6
+  `
+  return rows
+}
+
 function formatEur(n: number) {
   return Math.round(n).toLocaleString('fr-FR') + ' €'
 }
 
 export default async function DashboardPage() {
-  const [stats, days] = await Promise.all([getStats(), getLast21Days()])
+  const [stats, days, events] = await Promise.all([getStats(), getLast21Days(), getRecentEvents()])
 
   const caMoyen = stats.ca_moyen || 0
   const objectif = 1750
   const ratio = caMoyen / objectif
   const caProjeteMois = caMoyen * 20
   const emprunt = 730
+  const nbJours = parseInt(stats.nb_jours) || 0
+  const joursObj = parseInt(stats.jours_objectif) || 0
   const maxCa = Math.max(...days.map((d: any) => d.ca), objectif)
 
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-bold text-amber-400">Tableau de bord</h1>
+      <h1 className="playfair text-xl font-bold text-amber-400">Tableau de bord</h1>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* 4 KPIs */}
+      <div className="grid grid-cols-2 gap-3">
         <div className="card text-center">
-          <div className={`stat-value ${ratio >= 1 ? 'text-emerald-400' : 'text-red-400'}`}>
-            {formatEur(caMoyen)}
+          <div className="text-stone-500 text-xs mb-2">Moyenne / jour</div>
+          <div className={`stat-value ${ratio >= 1 ? 'text-emerald-400' : caMoyen > 0 ? 'text-amber-400' : 'text-stone-400'}`}>
+            {caMoyen > 0 ? formatEur(caMoyen) : '--'}
           </div>
-          <div className="stat-label">CA moyen / jour</div>
-          <div className="text-stone-600 text-xs mt-1">obj. {formatEur(objectif)}</div>
+          <div className="text-stone-600 text-xs mt-1">vs objectif {formatEur(objectif)}</div>
         </div>
 
         <div className="card text-center">
-          <div className="stat-value text-stone-100">{formatEur(caProjeteMois)}</div>
-          <div className="stat-label">CA projeté / mois</div>
-          <div className="text-stone-600 text-xs mt-1">sur 20 jours</div>
-        </div>
-
-        <div className="card text-center">
-          <div className={`stat-value ${caProjeteMois >= emprunt * 3 ? 'text-emerald-400' : 'text-amber-400'}`}>
-            {formatEur(emprunt)}
+          <div className="text-stone-500 text-xs mb-2">Objectif atteint</div>
+          <div className={`stat-value ${joursObj > nbJours / 2 ? 'text-emerald-400' : 'text-amber-400'}`}>
+            {nbJours > 0 ? `${joursObj}/${nbJours}` : '--'}
           </div>
-          <div className="stat-label">Emprunt / mois</div>
-          <div className="text-stone-600 text-xs mt-1">51 000 € BNP</div>
+          <div className="text-stone-600 text-xs mt-1">
+            {nbJours > 0 ? `${Math.round((joursObj / nbJours) * 100)}% du temps` : 'Pas de données'}
+          </div>
         </div>
-      </div>
 
-      {/* Stats résumé */}
-      <div className="card">
-        <div className="flex justify-between text-sm">
-          <span className="text-stone-400">Jours enregistrés</span>
-          <span>{stats.nb_jours}</span>
+        <div className="card text-center">
+          <div className="text-stone-500 text-xs mb-2">Record journalier</div>
+          <div className="stat-value text-emerald-400">
+            {stats.ca_max > 0 ? formatEur(stats.ca_max) : '--'}
+          </div>
+          <div className="text-stone-600 text-xs mt-1">Meilleur jour</div>
         </div>
-        <div className="flex justify-between text-sm mt-2">
-          <span className="text-stone-400">Objectif atteint</span>
-          <span className={stats.jours_objectif > 0 ? 'text-emerald-400' : 'text-stone-500'}>
-            {stats.jours_objectif} / {stats.nb_jours} jours
-          </span>
-        </div>
-        <div className="flex justify-between text-sm mt-2">
-          <span className="text-stone-400">Record</span>
-          <span className="text-amber-400">{formatEur(stats.ca_max)}</span>
+
+        <div className="card text-center">
+          <div className="text-stone-500 text-xs mb-2">CA mensuel projeté</div>
+          <div className="stat-value text-stone-100">
+            {caMoyen > 0 ? formatEur(caProjeteMois) : '--'}
+          </div>
+          <div className="text-stone-600 text-xs mt-1">20 jours ouvrés/mois</div>
         </div>
       </div>
 
       {/* 21 derniers jours */}
       <div>
-        <h2 className="text-sm font-semibold text-stone-400 mb-3">21 derniers jours</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-stone-400">CA journalier</h2>
+          <div className="flex items-center gap-3 text-xs text-stone-500">
+            <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-amber-500 inline-block rounded"></span>CA</span>
+            <span className="flex items-center gap-1"><span className="w-3 h-px bg-stone-600 inline-block"></span>Obj.</span>
+          </div>
+        </div>
         {days.length === 0 ? (
           <div className="card text-center text-stone-500 py-8">
             Aucune vente enregistrée
@@ -120,7 +133,6 @@ export default async function DashboardPage() {
                       }`}
                       style={{ width: `${pct}%` }}
                     />
-                    {/* Ligne objectif */}
                     <div
                       className="absolute top-0 bottom-0 w-px bg-stone-600"
                       style={{ left: `${(objectif / maxCa) * 100}%` }}
@@ -137,6 +149,54 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Emprunt tracker */}
+      <div className="card">
+        <h3 className="text-stone-400 text-sm font-medium mb-4">Emprunt BNP · 51 000 €</h3>
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span className="text-stone-400 text-sm">Mensualité</span>
+            <span className="text-red-400 font-semibold">{emprunt} €/mois</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-stone-400 text-sm">En jours de travail</span>
+            <span className="text-stone-200 font-semibold">
+              {caMoyen > 0 ? `${(emprunt / caMoyen).toFixed(1)} jours` : '--'}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-stone-400 text-sm">% du CA mensuel proj.</span>
+            <span className={`font-semibold ${
+              caMoyen > 0 ? ((emprunt / caProjeteMois) < 0.1 ? 'text-emerald-400' : 'text-amber-400') : 'text-stone-400'
+            }`}>
+              {caMoyen > 0 ? `${((emprunt / caProjeteMois) * 100).toFixed(1)}%` : '--'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Événements à surveiller */}
+      {events.length > 0 && (
+        <div className="card">
+          <h3 className="text-stone-300 font-medium mb-3">Événements à surveiller</h3>
+          <div className="space-y-2">
+            {events.map((e: any, i: number) => (
+              <div key={i} className="flex items-center gap-3 text-sm">
+                <span className="text-stone-500 w-16 shrink-0 text-xs">
+                  {e.date.slice(5).replace('-', '/')}
+                </span>
+                <span className="text-stone-300 flex-1">{e.description}</span>
+                <span className={`font-bold text-xs ${
+                  e.impact === 'positif' ? 'text-emerald-400' :
+                  e.impact === 'negatif' ? 'text-red-400' : 'text-stone-400'
+                }`}>
+                  {e.impact === 'positif' ? '↑' : e.impact === 'negatif' ? '↓' : '→'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -4,7 +4,7 @@ export async function getDailyRevenue(days = 30) {
   const { rows } = await sql`
     SELECT date, ca::float, nb_transactions::int, tips::float
     FROM daily_revenue
-    WHERE date >= NOW() - INTERVAL '${days} days'
+    WHERE date >= CURRENT_DATE - make_interval(days => ${days})
     ORDER BY date ASC
   `
   return rows
