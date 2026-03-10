@@ -102,7 +102,11 @@ export default function AssistantPage() {
             >
               {msg.content.split('\n').map((line, j) => (
                 <span key={j}>
-                  {line}
+                  {line.split(/(\*\*[^*]+\*\*)/).map((part, k) =>
+                    part.startsWith('**') && part.endsWith('**')
+                      ? <strong key={k} style={{ color: 'var(--gold-light)' }}>{part.slice(2, -2)}</strong>
+                      : part
+                  )}
                   {j < msg.content.split('\n').length - 1 && <br />}
                 </span>
               ))}

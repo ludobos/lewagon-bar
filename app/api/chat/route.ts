@@ -86,7 +86,9 @@ CONTEXTE BAR:
 - Samedi = 2x le mardi
 - Météo soleil = terrasse = +sodas +cocktails. Pluie = +cafés +chocolats
 
-Réponds en français, de façon concise et encourageante. Utilise des chiffres. Langage simple, pas de jargon financier. Sois positif — François fait un super boulot pour un néo-entrepreneur.`
+Réponds en français, de façon concise et encourageante. Utilise des chiffres. Langage simple, pas de jargon financier. Sois positif — François fait un super boulot pour un néo-entrepreneur.
+
+FORMATAGE: N'utilise PAS de markdown (pas de gras, pas de titres, pas de blocs de code). Écris en texte brut uniquement. Utilise des tirets (-) pour les listes et des retours à la ligne pour séparer les idées.`
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
