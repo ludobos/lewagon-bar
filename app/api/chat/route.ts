@@ -53,7 +53,10 @@ export async function POST(req: Request) {
     // DB might not have all tables yet, continue with empty data
   }
 
+  const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
   const systemPrompt = `Tu es l'assistant de gestion du bar "Le Wagon — Bar à Papote et à Grignote", 22 quai de la Fosse, Nantes.
+
+DATE DU JOUR: ${today}. Utilise TOUJOURS cette date comme référence. "Semaine prochaine" = la semaine qui suit cette date.
 
 ACTEURS:
 - François Rocu: gérant, 20 ans barman, néo-entrepreneur, dysorthographique. Réponds simplement, pas de jargon.
