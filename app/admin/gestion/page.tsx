@@ -148,6 +148,13 @@ export default function GestionPage() {
         >
           📅 Events
         </a>
+        <a
+          href="/admin/travaux"
+          className="text-xs px-4 py-2 rounded-full font-medium transition-colors"
+          style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid #444' }}
+        >
+          🚧 Travaux
+        </a>
       </div>
 
       {/* ═══════════ CA 30 JOURS ═══════════ */}

@@ -22,6 +22,18 @@ export async function POST(req: Request) {
   let events: any[] = []
   let targetValue = 500
 
+  let weatherContext = ''
+  try {
+    const wRes = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/weather`)
+    if (wRes.ok) {
+      const wData = await wRes.json()
+      const today = wData.this_week?.[0]
+      if (today) {
+        weatherContext = `Météo aujourd'hui: ${today.label} ${today.icon}, ${today.max}°C (ressenti ${today.apparent_temperature_max || today.max}°C), pluie ${today.precipitation_probability || 0}%, vent ${today.wind_speed_max || '?'}km/h, score terrasse: ${today.terrasse_score}/10 — ${today.tip}`
+      }
+    }
+  } catch {}
+
   try {
     const [statsRes, daysRes, eventsRes, settingsRes] = await Promise.all([
       sql`
@@ -34,7 +46,14 @@ export async function POST(req: Request) {
         FROM transactions WHERE status='successful' AND date >= CURRENT_DATE - INTERVAL '14 days'
         GROUP BY date ORDER BY date ASC
       `.catch(() => ({ rows: [] })),
-      sql`SELECT date, type, description, impact FROM events ORDER BY date DESC LIMIT 10`.catch(() => ({ rows: [] })),
+      sql`
+        SELECT date::text, type, description, impact, source, date_fin::text
+        FROM events
+        WHERE date >= CURRENT_DATE AND date <= CURRENT_DATE + INTERVAL '7 days'
+           OR (date_fin IS NOT NULL AND date_fin >= CURRENT_DATE AND date <= CURRENT_DATE + INTERVAL '7 days')
+        ORDER BY date ASC
+        LIMIT 20
+      `.catch(() => ({ rows: [] })),
       sql`SELECT value FROM settings WHERE key = 'daily_target'`.catch(() => ({ rows: [] })),
     ])
     stats = statsRes.rows[0]
@@ -83,8 +102,9 @@ ${recentDays.map(d => `${d.date}: ${d.ca?.toFixed(0)}€`).join('\n') || 'Pas en
 DÉPENSES PAR CATÉGORIE (ce mois):
 ${expenses.length > 0 ? expenses.map((e: any) => `${e.categorie}: ${e.total_ttc?.toFixed(0)}€`).join('\n') : 'Aucune facture saisie'}
 
-ÉVÉNEMENTS RÉCENTS:
-${events.map((e: any) => `${e.date}: [${e.type}] ${e.description} (${e.impact})`).join('\n') || 'Aucun'}
+CONTEXTE NANTES (7 prochains jours):
+${weatherContext || 'Météo non disponible'}
+${events.map((e: any) => `${e.date}: [${e.type}] ${e.description} (${e.impact})${e.source !== 'manual' ? ' [source: ' + e.source + ']' : ''}${e.date_fin ? ' → fin ' + e.date_fin : ''}`).join('\n') || 'Aucun événement'}
 
 CONTEXTE BAR:
 - Top produits: Expresso (36% CA), bières pression, Muscadet, café allongé

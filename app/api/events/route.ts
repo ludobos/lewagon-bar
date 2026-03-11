@@ -7,10 +7,12 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { rows } = await sql`
-    SELECT id, date::text, type, description, impact
+    SELECT id, date::text, type, description, impact, source, external_id, date_fin::text
     FROM events
+    WHERE date >= CURRENT_DATE - INTERVAL '7 days'
+      OR (date_fin IS NOT NULL AND date_fin >= CURRENT_DATE - INTERVAL '7 days')
     ORDER BY date ASC
-    LIMIT 50
+    LIMIT 100
   `
   return NextResponse.json({ events: rows })
 }
@@ -25,9 +27,9 @@ export async function POST(req: Request) {
   }
 
   const { rows } = await sql`
-    INSERT INTO events (date, type, description, impact)
-    VALUES (${date}, ${type || 'autre'}, ${description}, ${impact || 'neutre'})
-    RETURNING id, date::text, type, description, impact
+    INSERT INTO events (date, type, description, impact, source)
+    VALUES (${date}, ${type || 'autre'}, ${description}, ${impact || 'neutre'}, 'manual')
+    RETURNING id, date::text, type, description, impact, source
   `
   return NextResponse.json({ event: rows[0] })
 }

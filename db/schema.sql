@@ -44,12 +44,18 @@ CREATE INDEX IF NOT EXISTS idx_invoices_date ON invoices(date_facture DESC);
 CREATE TABLE IF NOT EXISTS events (
   id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   date        DATE NOT NULL,
-  type        TEXT CHECK (type IN ('meteo','ramadan','travaux','evenement','fermeture','concurrence','autre')),
+  type        TEXT CHECK (type IN ('meteo','ramadan','travaux','evenement','fermeture','concurrence','autre','jour-ferie','vacances-scolaires','travaux-voirie','match-foot')),
   description TEXT NOT NULL,
   impact      TEXT CHECK (impact IN ('positif','negatif','neutre')) DEFAULT 'neutre',
   source      TEXT DEFAULT 'manual',
+  external_id TEXT,
+  raw_data    JSONB,
+  date_fin    DATE,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_events_external_id ON events(external_id) WHERE external_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_events_date ON events(date DESC);
 
 -- OAuth tokens (SumUp + Google)
 CREATE TABLE IF NOT EXISTS oauth_tokens (
