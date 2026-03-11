@@ -81,6 +81,7 @@ type Meta = {
   txWithProducts: number
   coverage: number
   totalCA: number
+  realCA: number
   totalQty: number
 }
 
@@ -213,7 +214,7 @@ export default function ArticlesPage() {
           <span>·</span>
           <span>{meta.nbDays} jours</span>
           <span>·</span>
-          <span>{fmt(meta.totalCA)} € CA</span>
+          <span>{fmt(meta.realCA)} € CA</span>
           <span>·</span>
           <span>{fmt(meta.totalQty)} articles vendus</span>
           <span>·</span>
@@ -709,9 +710,9 @@ function FamiliesTab({ categories, meta }: { categories: Category[]; meta: Meta 
    INSIGHTS TAB
    ══════════════════════════════════════════════════════════ */
 function InsightsTab({ meta, categories, articles }: { meta: Meta; categories: Category[]; articles: Article[] }) {
-  const avgTicket = meta.totalCA / meta.nbTransactions
+  const avgTicket = meta.realCA / meta.nbTransactions
   const articlesPerTx = meta.totalQty / meta.txWithProducts
-  const caPerDay = meta.totalCA / meta.nbDays
+  const caPerDay = meta.realCA / meta.nbDays
   const topCat = [...categories].sort((a, b) => b.ca - a.ca)[0]
   const highVel = articles.filter((a) => a.vel >= 10).length
   const lowVel = articles.filter((a) => a.vel < 1).length

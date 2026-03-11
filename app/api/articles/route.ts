@@ -145,6 +145,9 @@ export async function GET() {
       return { name: a.name, ca: Math.round(a.ca), cumulPct: totalCA > 0 ? Math.round(cumul / totalCA * 100) : 0 }
     })
 
+    // Real total CA from ALL transactions (not just ones with product_summary)
+    const realCA = rows.reduce((s, r) => s + r.amount, 0)
+
     return NextResponse.json({
       articles,
       categories,
@@ -156,6 +159,7 @@ export async function GET() {
         txWithProducts,
         coverage: txTotal > 0 ? Math.round(txWithProducts / txTotal * 100) : 0,
         totalCA: Math.round(totalCA),
+        realCA: Math.round(realCA),
         totalQty: articles.reduce((s, a) => s + a.qty, 0),
       },
     })
