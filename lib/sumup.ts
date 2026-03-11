@@ -107,7 +107,7 @@ export async function isConnected(): Promise<boolean> {
 
 // ─── Sync ────────────────────────────────────────────────────────────────────
 
-export async function syncTransactions(daysBack = 1): Promise<number> {
+export async function syncTransactions(daysBack = 2): Promise<number> {
   const start = new Date()
   start.setDate(start.getDate() - daysBack)
   const startDate = start.toISOString().slice(0, 10)
