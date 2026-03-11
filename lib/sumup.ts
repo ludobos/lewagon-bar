@@ -152,12 +152,15 @@ export async function syncTransactions(daysBack = 1): Promise<number> {
       if (data.links && data.links.length > 0) {
         const next = data.links.find((l: any) => l.rel === 'next')
         if (next?.href) {
-          // href can be full URL or relative path
           const href = next.href as string
           if (href.startsWith('http')) {
-            url = new URL(href).pathname + new URL(href).search
+            const u = new URL(href)
+            url = u.pathname + u.search
+          } else if (href.startsWith('/')) {
+            url = href
           } else {
-            url = href.startsWith('/') ? href : `/${href}`
+            // SumUp returns just query params like "limit=100&oldest_ref=..."
+            url = `/v0.1/me/transactions/history?${href}`
           }
         } else {
           hasMore = false
