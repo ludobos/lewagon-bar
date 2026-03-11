@@ -135,6 +135,13 @@ export default function GestionPage() {
           📄 Factures {invoices.length > 0 ? `(${invoices.length})` : ''}
         </button>
         <a
+          href="/admin/articles"
+          className="text-xs px-4 py-2 rounded-full font-medium transition-colors"
+          style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid #444' }}
+        >
+          📊 Articles
+        </a>
+        <a
           href="/admin/events"
           className="text-xs px-4 py-2 rounded-full font-medium transition-colors"
           style={{ background: 'var(--bg-card)', color: 'var(--text-muted)', border: '1px solid #444' }}
