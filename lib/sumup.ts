@@ -132,10 +132,24 @@ export async function syncTransactions(daysBack = 1): Promise<number> {
       for (const tx of items) {
         if (tx.status !== 'SUCCESSFUL') continue
         const txDate = (tx.timestamp || endDate).slice(0, 10)
+        const txId = tx.id || tx.transaction_code
+        const txCode = tx.transaction_code || ''
+
+        // Skip if this transaction_code already exists under a different sumup_id
+        if (txCode) {
+          const { rows: existing } = await sql`
+            SELECT sumup_id FROM transactions
+            WHERE sumup_id = ${txCode}
+               OR raw_data->>'transaction_code' = ${txCode}
+            LIMIT 1
+          `
+          if (existing.length > 0 && existing[0].sumup_id !== txId) continue
+        }
+
         const { rowCount } = await sql`
           INSERT INTO transactions (sumup_id, date, amount, tip, payment_type, status, raw_data)
           VALUES (
-            ${tx.id || tx.transaction_code},
+            ${txId},
             ${txDate},
             ${parseFloat(tx.amount || 0)},
             ${parseFloat(tx.tip_amount || 0)},
