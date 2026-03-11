@@ -279,13 +279,13 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="space-y-0.5">
-            {days.map((d: any) => {
+            {[...days].reverse().map((d: any) => {
               const pct = Math.max(5, (d.ca / maxCa) * 100)
               const above = d.ca >= target
-              const dateStr = new Date(d.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' })
+              const dateStr = new Date(d.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
               return (
                 <div key={d.date} className="flex items-center gap-2 text-xs">
-                  <span className="w-12 shrink-0 text-[10px]" style={{ color: 'var(--text-muted)' }}>{dateStr}</span>
+                  <span className="w-20 shrink-0 text-[10px]" style={{ color: 'var(--text-muted)' }}>{dateStr}</span>
                   <div className="flex-1 h-4 rounded overflow-hidden relative" style={{ background: 'var(--bg-card-alt)' }}>
                     <div
                       className="h-full rounded transition-all"

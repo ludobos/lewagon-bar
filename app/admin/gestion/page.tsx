@@ -113,7 +113,7 @@ export default function GestionPage() {
   return (
     <div className="space-y-4">
       {/* Section chips */}
-      <div className="flex gap-2 sticky top-[52px] z-[5] py-2 -mx-4 px-4" style={{ background: 'var(--bg-dark)' }}>
+      <div className="flex gap-2 sticky top-[52px] z-[5] pt-2 pb-3 -mx-4 px-4" style={{ background: 'var(--bg-dark)' }}>
         <button
           onClick={() => scrollTo(caRef, 'ca')}
           className="text-xs px-4 py-2 rounded-full font-medium transition-colors"
