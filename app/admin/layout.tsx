@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import { useEffect } from 'react'
 
 const TABS = [
   { href: '/admin/dashboard', icon: '📊', label: 'Accueil' },
@@ -19,6 +20,14 @@ const PAGE_TITLES: Record<string, string> = {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const pageTitle = PAGE_TITLES[pathname] || 'Le Wagon'
+
+  useEffect(() => {
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: pathname }),
+    }).catch(() => {})
+  }, [pathname])
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden" style={{ background: 'var(--bg-dark)' }}>

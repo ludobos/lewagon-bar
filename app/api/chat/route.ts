@@ -11,6 +11,10 @@ export async function POST(req: Request) {
 
   const { messages } = await req.json()
 
+  // Track chat message
+  const lastMsg = messages?.[messages.length - 1]?.content || ''
+  await sql`INSERT INTO page_views (page, user_agent) VALUES (${'chat:' + lastMsg.slice(0, 200)}, ${req.headers.get('user-agent') || ''})`.catch(() => {})
+
   // Load context from DB
   let stats: any = {}
   let recentDays: any[] = []

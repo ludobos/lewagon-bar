@@ -84,6 +84,16 @@ CREATE TABLE IF NOT EXISTS sync_log (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Page views (usage tracking)
+CREATE TABLE IF NOT EXISTS page_views (
+  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  page        TEXT NOT NULL,
+  user_agent  TEXT,
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_views_created ON page_views(created_at DESC);
+
 -- Vue: CA par jour
 CREATE OR REPLACE VIEW daily_revenue AS
   SELECT
