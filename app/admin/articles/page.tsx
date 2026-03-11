@@ -822,7 +822,7 @@ function InsightsTab({ meta, categories, articles }: { meta: Meta; categories: C
             { text: 'Tester un happy hour cocktails le jeudi soir', done: false },
             { text: 'Ajouter 2 softs "signature" (limonade, thé glacé)', done: false },
             { text: 'Suivre le ticket moyen semaine par semaine', done: false },
-            { text: 'Viser 60%+ de couverture produit SumUp', done: false },
+            { text: 'Toujours passer les commandes par la caisse SumUp', done: false },
           ].map((obj, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
               <span
