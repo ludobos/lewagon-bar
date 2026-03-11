@@ -152,7 +152,13 @@ export async function syncTransactions(daysBack = 1): Promise<number> {
       if (data.links && data.links.length > 0) {
         const next = data.links.find((l: any) => l.rel === 'next')
         if (next?.href) {
-          url = next.href.replace(SUMUP_API, '')
+          // href can be full URL or relative path
+          const href = next.href as string
+          if (href.startsWith('http')) {
+            url = new URL(href).pathname + new URL(href).search
+          } else {
+            url = href.startsWith('/') ? href : `/${href}`
+          }
         } else {
           hasMore = false
         }
