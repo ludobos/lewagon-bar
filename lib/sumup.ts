@@ -1,87 +1,73 @@
 /**
  * SumUp API Client
- * Docs: https://developer.sumup.com/api
- *
- * OAuth flow:
- * 1. User visits /api/sumup/connect → redirected to SumUp login
- * 2. SumUp redirects to /api/sumup/callback with ?code=...
- * 3. Callback exchanges code for tokens, saved to DB
- * 4. Nightly cron calls syncTransactions()
+ * Supports both API key (preferred) and OAuth token
  */
 
 import { sql } from '@vercel/postgres'
 
 const SUMUP_API = 'https://api.sumup.com'
 
-// ─── Token management ─────────────────────────────────────────────────────────
+// ─── Auth ────────────────────────────────────────────────────────────────────
 
-async function getStoredTokens() {
+async function getToken(): Promise<string> {
+  // 1. Use API key if available (simplest)
+  if (process.env.SUMUP_API_KEY) {
+    return process.env.SUMUP_API_KEY
+  }
+
+  // 2. Fallback to stored OAuth token
   const { rows } = await sql`
     SELECT access_token, refresh_token, expires_at
     FROM oauth_tokens WHERE provider = 'sumup'
   `
-  return rows[0] || null
-}
+  const tokens = rows[0]
+  if (!tokens) throw new Error('SumUp non connecté et pas de clé API.')
 
-async function saveTokens(tokens: {
-  access_token: string
-  refresh_token: string
-  expires_in?: number
-}) {
-  const expires_at = tokens.expires_in
-    ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
-    : null
-
-  await sql`
-    INSERT INTO oauth_tokens (provider, access_token, refresh_token, expires_at, updated_at)
-    VALUES ('sumup', ${tokens.access_token}, ${tokens.refresh_token}, ${expires_at}, NOW())
-    ON CONFLICT (provider) DO UPDATE SET
-      access_token = EXCLUDED.access_token,
-      refresh_token = EXCLUDED.refresh_token,
-      expires_at = EXCLUDED.expires_at,
-      updated_at = NOW()
-  `
-}
-
-async function refreshToken(refresh_token: string): Promise<string> {
-  const res = await fetch(`${SUMUP_API}/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'refresh_token',
-      client_id: process.env.SUMUP_CLIENT_ID!,
-      client_secret: process.env.SUMUP_CLIENT_SECRET!,
-      refresh_token,
-    }),
-  })
-  const data = await res.json()
-  if (!data.access_token) throw new Error('SumUp refresh failed: ' + JSON.stringify(data))
-  await saveTokens(data)
-  return data.access_token
-}
-
-async function getValidToken(): Promise<string> {
-  const tokens = await getStoredTokens()
-  if (!tokens) throw new Error('SumUp non connecté. Aller sur /admin/dashboard et cliquer "Connecter SumUp".')
-
-  // Refresh if expires in < 5 min
-  if (tokens.expires_at) {
-    const expiresAt = new Date(tokens.expires_at)
-    if (expiresAt.getTime() - Date.now() < 5 * 60 * 1000) {
-      return await refreshToken(tokens.refresh_token)
-    }
+  // Refresh if needed
+  if (tokens.expires_at && new Date(tokens.expires_at).getTime() - Date.now() < 5 * 60 * 1000) {
+    const res = await fetch(`${SUMUP_API}/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        client_id: process.env.SUMUP_CLIENT_ID!,
+        client_secret: process.env.SUMUP_CLIENT_SECRET!,
+        refresh_token: tokens.refresh_token,
+      }),
+    })
+    const data = await res.json()
+    if (!data.access_token) throw new Error('SumUp refresh failed')
+    await sql`
+      UPDATE oauth_tokens SET access_token = ${data.access_token},
+        refresh_token = ${data.refresh_token || tokens.refresh_token},
+        expires_at = ${new Date(Date.now() + (data.expires_in || 3600) * 1000).toISOString()},
+        updated_at = NOW()
+      WHERE provider = 'sumup'
+    `
+    return data.access_token
   }
 
   return tokens.access_token
 }
 
-// ─── OAuth URL ────────────────────────────────────────────────────────────────
+// ─── API helpers ─────────────────────────────────────────────────────────────
+
+async function get(path: string) {
+  const token = await getToken()
+  const res = await fetch(`${SUMUP_API}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error(`SumUp ${res.status}: ${await res.text()}`)
+  return res.json()
+}
+
+// ─── OAuth (keep for backward compat) ────────────────────────────────────────
 
 export function getAuthUrl(): string {
   const params = new URLSearchParams({
     response_type: 'code',
-    client_id: process.env.SUMUP_CLIENT_ID!,
-    redirect_uri: process.env.SUMUP_REDIRECT_URI!,
+    client_id: process.env.SUMUP_CLIENT_ID || '',
+    redirect_uri: process.env.SUMUP_REDIRECT_URI || '',
     scope: 'payments:history',
   })
   return `https://api.sumup.com/authorize?${params}`
@@ -100,37 +86,26 @@ export async function handleCallback(code: string) {
     }),
   })
   const data = await res.json()
-  if (!data.access_token) throw new Error('SumUp auth failed: ' + JSON.stringify(data))
-  await saveTokens(data)
+  if (!data.access_token) throw new Error('SumUp auth failed')
+  await sql`
+    INSERT INTO oauth_tokens (provider, access_token, refresh_token, expires_at, updated_at)
+    VALUES ('sumup', ${data.access_token}, ${data.refresh_token}, ${new Date(Date.now() + (data.expires_in || 3600) * 1000).toISOString()}, NOW())
+    ON CONFLICT (provider) DO UPDATE SET
+      access_token = EXCLUDED.access_token, refresh_token = EXCLUDED.refresh_token,
+      expires_at = EXCLUDED.expires_at, updated_at = NOW()
+  `
   return data
 }
 
-// ─── API calls ────────────────────────────────────────────────────────────────
-
-async function get(path: string) {
-  const token = await getValidToken()
-  const res = await fetch(`${SUMUP_API}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  if (!res.ok) throw new Error(`SumUp ${res.status}: ${await res.text()}`)
-  return res.json()
-}
-
-export async function getMerchant() {
-  return get('/v0.1/me')
-}
-
-export async function getTransactions(startDate: string, endDate: string) {
-  const q = new URLSearchParams({ limit: '100', start_date: startDate, end_date: endDate })
-  return get(`/v0.1/me/transactions/history?${q}`)
-}
-
 export async function isConnected(): Promise<boolean> {
-  const tokens = await getStoredTokens()
-  return !!tokens?.access_token
+  if (process.env.SUMUP_API_KEY) return true
+  try {
+    const { rows } = await sql`SELECT access_token FROM oauth_tokens WHERE provider = 'sumup'`
+    return !!rows[0]?.access_token
+  } catch { return false }
 }
 
-// ─── Nightly sync ─────────────────────────────────────────────────────────────
+// ─── Sync ────────────────────────────────────────────────────────────────────
 
 export async function syncTransactions(daysBack = 1): Promise<number> {
   const start = new Date()
@@ -139,31 +114,56 @@ export async function syncTransactions(daysBack = 1): Promise<number> {
   const endDate = new Date().toISOString().slice(0, 10)
 
   try {
-    const data = await getTransactions(startDate, endDate)
-    const items: any[] = data.items || []
-    let inserted = 0
+    // SumUp paginates with oldest_time / newest_time
+    const params = new URLSearchParams({
+      oldest_time: `${startDate}T00:00:00.000Z`,
+      newest_time: `${endDate}T23:59:59.999Z`,
+      limit: '100',
+    })
 
-    for (const tx of items) {
-      if (tx.status !== 'SUCCESSFUL') continue
-      const { rowCount } = await sql`
-        INSERT INTO transactions (sumup_id, date, amount, tip, payment_type, status, raw_data)
-        VALUES (
-          ${tx.id},
-          ${(tx.timestamp || endDate).slice(0, 10)},
-          ${parseFloat(tx.amount || 0)},
-          ${parseFloat(tx.tip_amount || 0)},
-          ${(tx.payment_type || '').toLowerCase()},
-          'successful',
-          ${JSON.stringify(tx)}
-        )
-        ON CONFLICT (sumup_id) DO NOTHING
-      `
-      if (rowCount) inserted++
+    let inserted = 0
+    let hasMore = true
+    let url = `/v0.1/me/transactions/history?${params}`
+
+    while (hasMore) {
+      const data = await get(url)
+      const items: any[] = data.items || []
+
+      for (const tx of items) {
+        if (tx.status !== 'SUCCESSFUL') continue
+        const txDate = (tx.timestamp || endDate).slice(0, 10)
+        const { rowCount } = await sql`
+          INSERT INTO transactions (sumup_id, date, amount, tip, payment_type, status, raw_data)
+          VALUES (
+            ${tx.id || tx.transaction_code},
+            ${txDate},
+            ${parseFloat(tx.amount || 0)},
+            ${parseFloat(tx.tip_amount || 0)},
+            ${(tx.payment_type || '').toLowerCase()},
+            'successful',
+            ${JSON.stringify(tx)}
+          )
+          ON CONFLICT (sumup_id) DO NOTHING
+        `
+        if (rowCount) inserted++
+      }
+
+      // Check for next page
+      if (data.links && data.links.length > 0) {
+        const next = data.links.find((l: any) => l.rel === 'next')
+        if (next?.href) {
+          url = next.href.replace(SUMUP_API, '')
+        } else {
+          hasMore = false
+        }
+      } else {
+        hasMore = false
+      }
     }
 
     await sql`
       INSERT INTO sync_log (source, status, message, records)
-      VALUES ('sumup', 'ok', ${`Synced ${startDate} → ${endDate}`}, ${inserted})
+      VALUES ('sumup', 'ok', ${`Synced ${startDate} → ${endDate}: ${inserted} new`}, ${inserted})
     `
 
     return inserted
