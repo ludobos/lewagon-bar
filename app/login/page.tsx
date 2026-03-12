@@ -17,7 +17,7 @@ export default function LoginPage() {
       redirect: false,
     })
     if (res?.ok) {
-      router.push('/admin/dashboard')
+      router.push('/admin/gestion')
     } else {
       setError(true)
       setLoading(false)

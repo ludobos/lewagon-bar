@@ -1,5 +1,5 @@
-import DashboardTab from '../gestion/_tabs/DashboardTab'
+import { redirect } from 'next/navigation'
 
 export default function DashboardPage() {
-  return <DashboardTab />
+  redirect('/admin/gestion')
 }
