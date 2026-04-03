@@ -132,6 +132,86 @@ async function fetchReceiptProducts(txCode: string): Promise<any[]> {
   }
 }
 
+// ─── Article name normalization (SumUp renames with prefixes) ────────────────
+
+const ARTICLE_ALIASES: Record<string, string> = {
+  // Boissons chaudes
+  'A - Expresso': 'Expresso', '1 - Expresso': 'Expresso',
+  'B - Allongé': 'Café allongé', '2 - Allongé': 'Café allongé',
+  'C - Grand Café': 'Grand café', '3 - Grand Café': 'Grand café',
+  'D - Petit Crème': 'Petit crème', '4 - Petit Crème': 'Petit crème',
+  'E - Déca': 'Déca',
+  'F - Déca Allongé': 'Déca allongé',
+  'L - Déca grand': 'Déca grand',
+  'M - Déca grand crème': 'Déca grand crème',
+  'K - Café Noisette': 'Café noisette',
+  'J -  Cafe Emporte': 'Cafe Emporte', 'J - Cafe Emporte': 'Cafe Emporte',
+  'G - Petit Chocolat': 'Chocolat petit',
+  'H - Grand Chocolat': 'Chocolat grand',
+  'O - Cappuccino': 'Cappuccino',
+  'P - Thé nature': 'Thé nature',
+  'Q - Thé parfumé': 'Thé parfumé',
+  'I - Grand crème': 'Grand crème',
+  // Bières pressions
+  'A - Veltins 1/2': 'Veltins demi', '1 - Veltins 1/2': 'Veltins demi',
+  'C - Veltins 50cl': 'Veltins pinte', '3 - Veltins 50cl': 'Veltins pinte',
+  'B - Veltins 1/2 Sirop': 'Veltins demi sirop',
+  'D - Veltins 50cl Sirop': 'Veltins pinte sirop',
+  'G - IPA 1/2': 'Nantaise IPA demi', '7 - IPA 1/2': 'Nantaise IPA demi',
+  'H - IPA 50cl': 'Nantaise IPA pinte',
+  'I - AMBREE 1/2': 'Nantaise ambrée demi', '9 - AMBREE 1/2': 'Nantaise ambrée demi',
+  'J - AMBREE 50cl': 'Nantaise ambrée pinte', '9* - AMBREE 50cl': 'Nantaise ambrée pinte',
+  'F - Galo Vetlins': 'Galo Vetlins', '6 - Galo Vetlins': 'Galo Vetlins',
+  'K - Galo Nantaise': 'Galopin Nantaise', '9** - Galo Nantaise': 'Galopin Nantaise',
+  'M - Monaco 1/2': 'Monaco demi',
+  'O - Panache 1/2': 'Panache demi', 'P - Panache 50cl': 'Panache pinte',
+  'Q - Picon 1/2': 'Picon bière demi',
+  'E - 1664 - 00°': 'Bière sans alcool',
+  'S - Free Party': 'Free Party',
+  // Sodas
+  'A - Coca-cola': 'Coca-cola',
+  'B - Coca zéro': 'Coca zéro',
+  'C - Coca cherry': 'Coca cherry',
+  'D - Diabolo': 'Diabolo', 'Diabolos': 'Diabolo',
+  'E - Fuze tea': 'Fuze tea',
+  'F - Jus de fruit': 'Jus de fruit',
+  'G - Ginger Beer': 'Ginger Beer',
+  'H - Jus tomates': 'Jus tomates',
+  'I - Limonade': 'Limonade',
+  'J - Orange pressée': 'Orange pressée',
+  'K - Citron pressé': 'Citron pressé',
+  'M - Orangina': 'Orangina',
+  'N - Schweppes': 'Schweppes',
+  'P - Perrier': 'Perrier',
+  'R - Vittel': 'Vittel',
+  'Q - Sup Tranche/Sirop': 'Sup Tranche/Sirop',
+  'S - RedBull': 'RedBull',
+  // Vins
+  '1 - Muscadet': 'Muscadet',
+  '1-1 Btl Muscadet': 'Bouteille Muscadet',
+  '2 - Chenin': 'Chenin',
+  '3 - Sauvignon': 'Sauvignon',
+  '4 - Colombelle': 'Colombelle',
+  '5 - Côte du Rhône': 'Côte du Rhône',
+  '6 - Rosé corse': 'Rosé corse',
+  'Btl Chenin reduc': 'Btl Chenin', 'Chenin Btl reduc': 'Btl Chenin',
+  'X - Verre Prosecco': 'Prosecco',
+  // Apéritifs
+  'Double Ricard': 'Ricard double',
+  'Ricard Sirop': 'Ricard',
+  // Digestifs
+  'Whisky - 4cl': 'Whisky',
+  // Snack
+  'Sandwich Jambon / Fromage / Cornichons': 'Sandwich Jambon fromage',
+  'Demi Planche mixte': 'Demi planche Mixte', 'Demi planche mixte': 'Demi planche Mixte',
+  'Croc\'double / Madame': 'Croque madame',
+  'Demi bouteille Mumu': 'Demi bouteille Muscadet',
+}
+
+export function normalizeArticleName(name: string): string {
+  return ARTICLE_ALIASES[name] || name
+}
+
 // ─── Article category mapping ────────────────────────────────────────────────
 
 const ARTICLE_CATEGORIES: Record<string, string> = {
@@ -143,28 +223,33 @@ const ARTICLE_CATEGORIES: Record<string, string> = {
   'Thé nature': 'Boissons chaudes', 'Thé parfumé': 'Boissons chaudes', 'Viennois': 'Boissons chaudes',
   'Vin chaud - grog': 'Boissons chaudes', 'Lait sirop': 'Boissons chaudes',
   'Veltins demi': 'Bières pressions', 'Veltins pinte': 'Bières pressions',
+  'Veltins demi sirop': 'Bières pressions', 'Veltins pinte sirop': 'Bières pressions',
   'Nantaise IPA demi': 'Bières pressions', 'Nantaise IPA pinte': 'Bières pressions',
   'Nantaise ambrée demi': 'Bières pressions', 'Nantaise ambrée pinte': 'Bières pressions',
   'Picon bière demi': 'Bières pressions', 'Picon bière pinte': 'Bières pressions',
   'Monaco demi': 'Bières pressions', 'Monaco pinte': 'Bières pressions',
   'Bière sans alcool': 'Bières pressions', 'Despe': 'Bières pressions',
   'Galo Vetlins': 'Bières pressions', 'Galopin Nantaise': 'Bières pressions',
-  'Panache': 'Bières pressions',
+  'Panache': 'Bières pressions', 'Panache demi': 'Bières pressions', 'Panache pinte': 'Bières pressions',
+  'Free Party': 'Bières pressions',
   'Muscadet': 'Vins', 'Bouteille Muscadet': 'Vins', 'Côte du Rhône': 'Vins',
   'Chenin': 'Vins', 'Btl Chenin': 'Vins', 'Colombelle': 'Vins',
   'Sauvignon': 'Vins', 'Rosé corse': 'Vins', 'Côte Marmandais': 'Vins',
+  'Prosecco': 'Vins', 'Demi bouteille Muscadet': 'Vins',
   'Coca-cola': 'Sodas', 'Coca zéro': 'Sodas', 'Coca cherry': 'Sodas',
   'Orangina': 'Sodas', 'Perrier': 'Sodas', 'Fuze tea': 'Sodas',
   'Jus de fruit': 'Sodas', 'Jus tomates': 'Sodas', 'Limonade': 'Sodas',
-  'Diabolo': 'Sodas', 'Diabolos': 'Sodas', 'Sirop à l\'eau': 'Sodas',
+  'Diabolo': 'Sodas', 'Sirop à l\'eau': 'Sodas',
   'Orange pressée': 'Sodas', 'Citron pressé': 'Sodas', 'Schweppes': 'Sodas',
   'Ginger Beer': 'Sodas', 'Vittel': 'Sodas', 'Vittel sirop': 'Sodas',
-  'Sirop enfant': 'Sodas', 'Sup Tranche/Sirop': 'Sodas',
+  'Sirop enfant': 'Sodas', 'Sup Tranche/Sirop': 'Sodas', 'RedBull': 'Sodas',
   'Croque monsieur': 'Snack', 'Croque madame': 'Snack', 'Planche Mixte': 'Snack',
-  'Petite Mixte': 'Snack', 'Assiette Charcuterie': 'Snack', 'Assiette Fromage': 'Snack',
-  'Jambon Beurre': 'Snack', 'Sandwich': 'Snack', 'Sandwich Jambon / Fromage / Cornichons': 'Snack',
-  'Sandwich Jambon fromage': 'Snack',
-  'Ricard': 'Apéritifs', 'Kir': 'Apéritifs', 'Martini': 'Apéritifs',
+  'Petite Mixte': 'Snack', 'Demi planche Mixte': 'Snack',
+  'Assiette Charcuterie': 'Snack', 'Assiette Fromage': 'Snack',
+  'Jambon Beurre': 'Snack', 'Sandwich': 'Snack', 'Sandwich Jambon fromage': 'Snack',
+  'Tartine': 'Snack',
+  'Ricard': 'Apéritifs', 'Ricard double': 'Apéritifs', 'Kir': 'Apéritifs', 'Martini': 'Apéritifs',
+  'Porto': 'Apéritifs',
   'Mojito': 'Cocktails', 'Spritz': 'Cocktails', 'Mule': 'Cocktails',
   'Planteur': 'Cocktails', 'Ti punch': 'Cocktails',
   'Whisky': 'Digestifs', 'Cognac': 'Digestifs', 'Cognac aux amandes': 'Digestifs',
@@ -237,11 +322,12 @@ export async function syncTransactions(daysBack = 2): Promise<number> {
             const products = await fetchReceiptProducts(txCode)
             for (const p of products) {
               if (!p.name) continue
+              const canonicalName = normalizeArticleName(p.name)
               await sql`
                 INSERT INTO transaction_items (transaction_code, date, name, category, qty, price_unit, price_total, vat_rate)
                 VALUES (
-                  ${txCode}, ${txDate}, ${p.name},
-                  ${ARTICLE_CATEGORIES[p.name] || 'Non attribué'},
+                  ${txCode}, ${txDate}, ${canonicalName},
+                  ${ARTICLE_CATEGORIES[canonicalName] || 'Non attribué'},
                   ${p.quantity || 1},
                   ${parseFloat(p.price_with_vat || p.price || 0)},
                   ${parseFloat(p.total_with_vat || p.total_price || 0)},

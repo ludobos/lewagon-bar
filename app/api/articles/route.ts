@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { sql } from '@vercel/postgres'
+import { normalizeArticleName } from '@/lib/sumup'
 
 export async function GET() {
   const session = await getServerSession()
@@ -8,13 +9,30 @@ export async function GET() {
 
   try {
     // Get articles from transaction_items (100% coverage via receipts API)
-    const { rows: itemRows } = await sql`
+    const { rows: rawRows } = await sql`
       SELECT name, category, SUM(qty) AS qty, SUM(price_total)::float AS ca,
              MIN(date)::text AS min_date, MAX(date)::text AS max_date
       FROM transaction_items
       GROUP BY name, category
       ORDER BY ca DESC
     `
+
+    // Merge rows that map to the same canonical name (handles SumUp renames)
+    const mergedMap: Record<string, { name: string; category: string; qty: number; ca: number }> = {}
+    for (const r of rawRows) {
+      const canonical = normalizeArticleName(r.name)
+      if (!mergedMap[canonical]) {
+        mergedMap[canonical] = { name: canonical, category: r.category, qty: 0, ca: 0 }
+      }
+      const m = mergedMap[canonical]
+      m.qty += parseInt(r.qty)
+      m.ca += (r.ca || 0)
+      // Prefer a real category over 'Non attribué'
+      if (m.category === 'Non attribué' && r.category && r.category !== 'Non attribué') {
+        m.category = r.category
+      }
+    }
+    const itemRows = Object.values(mergedMap).sort((a, b) => b.ca - a.ca)
 
     // Get real totals from transactions table
     const { rows: statsRows } = await sql`
@@ -36,15 +54,15 @@ export async function GET() {
     `
     const txWithItems = parseInt(coverageRows[0].with_items) || 0
 
-    // Build articles array
+    // Build articles array (itemRows already merged by canonical name)
     const totalArticleCA = itemRows.reduce((s, r) => s + (r.ca || 0), 0)
     const articles = itemRows.map(r => ({
       name: r.name,
-      qty: parseInt(r.qty),
+      qty: r.qty,
       ca: Math.round((r.ca || 0) * 100) / 100,
-      prix: parseInt(r.qty) > 0 ? Math.round((r.ca || 0) / parseInt(r.qty) * 100) / 100 : 0,
+      prix: r.qty > 0 ? Math.round((r.ca || 0) / r.qty * 100) / 100 : 0,
       cat: r.category || 'Non attribué',
-      vel: nbDays > 0 ? Math.round(parseInt(r.qty) / nbDays * 10) / 10 : 0,
+      vel: nbDays > 0 ? Math.round(r.qty / nbDays * 10) / 10 : 0,
     }))
 
     // Build category aggregation
